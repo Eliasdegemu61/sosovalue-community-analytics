@@ -1,0 +1,230 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* minimal black and white theme */
+  --background: #ffffff;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #000000;
+  --muted: #d9d9d9;
+  --muted-foreground: #666666;
+  --accent: #000000;
+  --accent-foreground: #ffffff;
+  --destructive: #000000;
+  --destructive-foreground: #ffffff;
+  --border: #e5e5e5;
+  --input: #ffffff;
+  --ring: #000000;
+  --chart-1: #000000;
+  --chart-2: #333333;
+  --chart-3: #666666;
+  --chart-4: #999999;
+  --chart-5: #cccccc;
+  --radius: 0.5rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #000000;
+  --sidebar-primary: #000000;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #000000;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #e5e5e5;
+  --sidebar-ring: #000000;
+}
+
+.dark {
+  /* pure black and white - dark mode */
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #0a0a0a;
+  --card-foreground: #ffffff;
+  --popover: #000000;
+  --popover-foreground: #ffffff;
+  --primary: #ffffff;
+  --primary-foreground: #000000;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #ffffff;
+  --muted: #333333;
+  --muted-foreground: #999999;
+  --accent: #ffffff;
+  --accent-foreground: #000000;
+  --destructive: #ffffff;
+  --destructive-foreground: #000000;
+  --border: #2a2a2a;
+  --input: #0a0a0a;
+  --ring: #ffffff;
+  --chart-1: #ffffff;
+  --chart-2: #cccccc;
+  --chart-3: #999999;
+  --chart-4: #666666;
+  --chart-5: #333333;
+  --sidebar: #000000;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #ffffff;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #2a2a2a;
+  --sidebar-ring: #ffffff;
+}
+
+@theme inline {
+  --font-sans: "Geist", "Geist Fallback";
+  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --font-serif: "Lora", "Lora Fallback";
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* refined notebook aesthetic with subtle texture */
+/* Added sketchbook aesthetic with marker highlight effects */
+@layer components {
+  .notebook-grid {
+    /* subtle horizontal lines for paper texture effect */
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 40px, #ebe8e3 40px, #ebe8e3 41px);
+    background-attachment: fixed;
+  }
+
+  .dark .notebook-grid {
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 40px, #3f3d3a 40px, #3f3d3a 41px);
+  }
+
+  .stamp {
+    transform: rotate(-2deg);
+    border: 2px dashed currentColor;
+    padding: 0.5rem 1rem;
+    display: inline-block;
+  }
+
+  /* Sketchbook paper texture */
+  .sketchbook-paper {
+    position: relative;
+    background-image: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(139, 130, 120, 0.03) 2px,
+      rgba(139, 130, 120, 0.03) 4px
+    );
+  }
+
+  .dark .sketchbook-paper {
+    background-image: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.02) 2px,
+      rgba(255, 255, 255, 0.02) 4px
+    );
+  }
+
+  /* Minimal marker highlights - removed colored effects */
+  .marker-highlight-yellow,
+  .marker-highlight-green,
+  .marker-highlight-blue {
+    display: none;
+  }
+
+  .marker-highlight {
+    display: none;
+  }
+
+  /* Glass morphism tooltip effect */
+  .glass-tooltip {
+    backdrop-filter: blur(10px);
+  }
+
+  .glass-tooltip > * {
+    color: #ffffff !important;
+    font-weight: 600;
+  }
+
+  /* Remove focus outline on recharts SVG elements */
+  .recharts-surface {
+    outline: none !important;
+  }
+
+  .recharts-surface *[tabindex="-1"] {
+    outline: none !important;
+    focus-visible: none !important;
+  }
+
+  svg[class*="recharts"] path,
+  svg[class*="recharts"] rect,
+  svg[class*="recharts"] circle {
+    outline: none !important;
+  }
+
+  svg[class*="recharts"] path:focus-visible,
+  svg[class*="recharts"] rect:focus-visible,
+  svg[class*="recharts"] circle:focus-visible {
+    outline: none !important;
+  }
+
+  /* Falling GM animation */
+  @keyframes fall {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100vh) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  .animate-fall {
+    animation: fall 2.5s linear forwards;
+  }
+}
