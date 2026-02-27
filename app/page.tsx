@@ -22,7 +22,9 @@ interface DashboardData {
 }
 
 export default function Dashboard() {
-  const [platform, setPlatform] = useState<"telegram" | "discord">("discord")
+  const [platform, setPlatform] = useState<"telegram" | "discord" | "x">("discord")
+  const [xSection, setXSection] = useState<"SoSoValue" | "Sodex" | "SSI Index">("SoSoValue")
+  const [xData, setXData] = useState<any>(null)
   const [community, setCommunity] = useState("SOSOVALUE")
   const [showCommunityMenu, setShowCommunityMenu] = useState(false)
   const [date, setDate] = useState(() => {
@@ -406,6 +408,27 @@ export default function Dashboard() {
     }
   }
 
+  const fetchXData = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const monthShort = date.toLocaleString("en-US", { month: "short" }).toLowerCase()
+      const day = String(date.getDate())
+      const fileName = `${monthShort}${day}.json`
+      const url = `https://raw.githubusercontent.com/Eliasdegemu61/soso-x-analysis/main/${fileName}`
+
+      const json = await fetchWithCache(url, true)
+      setXData(json)
+      setLastUpdated(new Date())
+    } catch (error) {
+      console.error("[v0] X fetch error:", error)
+      setError(error instanceof Error ? error.message : "Failed to fetch X analysis data")
+      setXData(null)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     if (platform === "telegram") {
       fetchData()
@@ -413,11 +436,15 @@ export default function Dashboard() {
       fetchCumulativeData()
       const interval = setInterval(fetchData, 3600000)
       return () => clearInterval(interval)
-    } else {
+    } else if (platform === "discord") {
       fetchDiscordData()
       fetchWeeklyDiscordData()
       fetchCumulativeDiscordData()
       const interval = setInterval(fetchDiscordData, 3600000)
+      return () => clearInterval(interval)
+    } else if (platform === "x") {
+      fetchXData()
+      const interval = setInterval(fetchXData, 3600000)
       return () => clearInterval(interval)
     }
   }, [platform, community, date])
@@ -597,7 +624,36 @@ export default function Dashboard() {
               </svg>
               <span>Discord</span>
             </button>
+            <button
+              onClick={() => setPlatform("x")}
+              className={`px-4 py-2 rounded-lg font-sans text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-200 flex items-center gap-2 flex-1 sm:flex-none justify-center sm:justify-start ${platform === "x"
+                ? "bg-accent text-accent-foreground shadow-md"
+                : "bg-card border border-border text-foreground hover:border-accent"
+                }`}
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932 6.064-6.932zm-1.292 19.494h2.039L6.486 3.24H4.298l13.311 17.407z" />
+              </svg>
+              <span>X</span>
+            </button>
           </div>
+
+          {platform === "x" && (
+            <div className="flex flex-wrap gap-2">
+              {(["SoSoValue", "Sodex", "SSI Index"] as const).map((section) => (
+                <button
+                  key={section}
+                  onClick={() => setXSection(section)}
+                  className={`px-4 py-2 rounded-lg font-sans text-xs sm:text-sm font-medium transition-all duration-200 ${xSection === section
+                    ? "bg-accent text-accent-foreground shadow-sm"
+                    : "bg-card border border-border text-foreground hover:border-accent"
+                    }`}
+                >
+                  {section}
+                </button>
+              ))}
+            </div>
+          )}
 
           {platform === "telegram" && (
             <div className="flex gap-2 w-full">
@@ -714,7 +770,7 @@ export default function Dashboard() {
           <div className="text-center py-16">
             <p className="text-muted-foreground">Loading data...</p>
           </div>
-        ) : (data && platform === "telegram") || (discordData && platform === "discord") ? (
+        ) : (data && platform === "telegram") || (discordData && platform === "discord") || (xData && platform === "x") ? (
           <div className="space-y-10">
             {platform === "discord" && discordData && (
               <>
@@ -903,25 +959,25 @@ export default function Dashboard() {
                 )}
               </>
             )}
-            {platform === "telegram" && (
+            {platform === "telegram" && data && (
               <div className="flex flex-wrap gap-3">
                 <div className="bg-card border border-border rounded-lg px-4 py-2.5 hover:border-accent/50 transition-all duration-200 flex items-center gap-4">
                   <div className="flex flex-col">
                     <p className="text-[10px] text-muted-foreground font-sans uppercase tracking-wider mb-0.5">Total Messages</p>
                     <div className="text-base sm:text-lg font-bold text-accent leading-none">
-                      {data.totals.messages.toLocaleString()}
+                      {data.totals?.messages?.toLocaleString() || 0}
                     </div>
                   </div>
-                  <ComparisonBadge current={data.totals.messages} previous={previousDayData?.totals.messages || 0} />
+                  <ComparisonBadge current={data.totals?.messages || 0} previous={previousDayData?.totals?.messages || 0} />
                 </div>
                 <div className="bg-card border border-border rounded-lg px-4 py-2.5 hover:border-accent/50 transition-all duration-200 flex items-center gap-4">
                   <div className="flex flex-col">
                     <p className="text-[10px] text-muted-foreground font-sans uppercase tracking-wider mb-0.5">Active Users</p>
                     <div className="text-base sm:text-lg font-bold text-accent leading-none">
-                      {data.totals.users.toLocaleString()}
+                      {data.totals?.users?.toLocaleString() || 0}
                     </div>
                   </div>
-                  <ComparisonBadge current={data.totals.users} previous={previousDayData?.totals.users || 0} />
+                  <ComparisonBadge current={data.totals?.users || 0} previous={previousDayData?.totals?.users || 0} />
                 </div>
               </div>
             )}
@@ -1031,7 +1087,7 @@ export default function Dashboard() {
               </div>
             )}
 
-            {platform === "telegram" && (
+            {platform === "telegram" && data && (
               <>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {data.sections && (
@@ -1101,6 +1157,72 @@ export default function Dashboard() {
                   </>
                 )}
               </>
+            )}
+            {platform === "x" && xData && (
+              <div className="space-y-10">
+                {/* Global Summary Card */}
+                <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
+                  <h2 className="text-xl font-bold text-foreground mb-6">Summary (All)</h2>
+                  <p className="text-sm text-foreground leading-relaxed">{xData.summary}</p>
+                </div>
+
+                {/* Section Specific Content */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Top Questions for Section */}
+                  <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                      <h2 className="text-xl font-bold text-foreground">Top Questions - {xSection}</h2>
+                      <div className="flex bg-secondary/50 p-1 rounded-xl border border-border/50 backdrop-blur-sm">
+                        {(["SoSoValue", "Sodex", "SSI Index"] as const).map((section) => (
+                          <button
+                            key={section}
+                            onClick={() => setXSection(section)}
+                            className={`px-3 py-1 rounded-lg text-[10px] sm:text-xs font-sans font-semibold transition-all duration-300 ${xSection === section
+                              ? "bg-card text-accent shadow-sm ring-1 ring-border/50 scale-[1.02]"
+                              : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
+                              }`}
+                          >
+                            {section}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <ol className="space-y-4">
+                      {xData.top_questions[xSection]?.map((question: string, i: number) => (
+                        <li key={i} className="text-sm text-foreground leading-relaxed">
+                          <span className="font-bold text-accent">{i + 1}.</span> {question}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+
+                  {/* Engaged Posts */}
+                  <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
+                    <h2 className="text-xl font-bold text-foreground mb-6">Most Engaged Posts</h2>
+                    <div className="space-y-4">
+                      {xData.post_links?.map((link: string, i: number) => (
+                        <a
+                          key={i}
+                          href={link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block p-4 rounded-lg bg-secondary/30 hover:bg-secondary/50 border border-border/50 transition-all duration-200 group"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-foreground group-hover:text-accent truncate">
+                              View Post on X
+                            </span>
+                            <svg className="w-4 h-4 text-muted-foreground group-hover:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                          </div>
+                          <p className="text-[10px] text-muted-foreground mt-1 truncate">{link}</p>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         ) : (
