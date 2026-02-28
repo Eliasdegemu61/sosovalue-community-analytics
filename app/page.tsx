@@ -484,13 +484,13 @@ export default function Dashboard() {
     : []
 
   const parseAnalysis = (analysis: string) => {
-    const summaryMatch = analysis.match(/Summary:\s*(.+?)(?=Top Community Questions:|$)/s)
+    const summaryMatch = analysis.match(/Summary:\s*([\s\S]+?)(?=Top Community Questions:|$)/);
     let summary = summaryMatch ? summaryMatch[1].trim() : ""
 
     summary = summary.replace("ome users are threatening to report the project to regulatory authorities.", "")
     summary = summary.trim()
 
-    const questionsMatch = analysis.match(/Top Community Questions:\s*(.+?)$/s)
+    const questionsMatch = analysis.match(/Top Community Questions:\s*([\s\S]+?)$/);
 
     return {
       summary,
@@ -982,12 +982,12 @@ export default function Dashboard() {
               </div>
             )}
 
-            {platform === "telegram" && analysis && (
+            {platform === "telegram" && data && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                   <h2 className="text-xl font-bold text-foreground mb-6">Top Questions</h2>
                   <ol className="space-y-4">
-                    {analysis?.questions.slice(0, 3).map((question, i) => {
+                    {parseAnalysis(data.ai_analysis).questions.slice(0, 3).map((question: string, i: number) => {
                       const cleanedQuestion = question.replace(/^\d+\.\s*/, "")
                       return (
                         <li key={i} className="text-sm text-foreground leading-relaxed">
@@ -1000,7 +1000,7 @@ export default function Dashboard() {
 
                 <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                   <h2 className="text-xl font-bold text-foreground mb-6">Summary</h2>
-                  <p className="text-foreground leading-relaxed text-base">{analysis?.summary}</p>
+                  <p className="text-foreground leading-relaxed text-base">{parseAnalysis(data.ai_analysis).summary}</p>
                 </div>
               </div>
             )}
@@ -1033,7 +1033,10 @@ export default function Dashboard() {
                   <AreaChart
                     data={
                       timeframe === "today"
-                        ? chartData
+                        ? Object.entries(data.active_hours_sgt).map(([hour, count]) => ({
+                          hour,
+                          count: count as number,
+                        }))
                         : timeframe === "weekly"
                           ? (weeklyData || [])
                           : [
@@ -1094,7 +1097,7 @@ export default function Dashboard() {
                     <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                       <h2 className="text-xl font-bold text-foreground mb-6">Language Sections</h2>
                       <div className="space-y-3 text-sm">
-                        {data.sections.slice(0, community === "SOSOVALUE" ? 5 : data.sections.length).map((section) => (
+                        {data.sections.slice(0, community === "SOSOVALUE" ? 5 : data.sections.length).map((section: any) => (
                           <div key={section.name} className="flex justify-between items-center">
                             <span className="text-foreground">{section.name}</span>
                             <span className="font-bold text-accent">{section.msgs}</span>
@@ -1158,72 +1161,88 @@ export default function Dashboard() {
                 )}
               </>
             )}
-            {platform === "x" && xData && (
+
+            {platform === "x" && xData ? (
               <div className="space-y-10">
-                {/* Global Summary Card */}
-                <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
-                  <h2 className="text-xl font-bold text-foreground mb-6">Summary (All)</h2>
-                  <p className="text-sm text-foreground leading-relaxed">{xData.summary}</p>
-                </div>
-
-                {/* Section Specific Content */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Top Questions for Section */}
-                  <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                      <h2 className="text-xl font-bold text-foreground">Top Questions - {xSection}</h2>
-                      <div className="flex bg-secondary/50 p-1 rounded-xl border border-border/50 backdrop-blur-sm">
-                        {(["SoSoValue", "Sodex", "SSI Index"] as const).map((section) => (
-                          <button
-                            key={section}
-                            onClick={() => setXSection(section)}
-                            className={`px-3 py-1 rounded-lg text-[10px] sm:text-xs font-sans font-semibold transition-all duration-300 ${xSection === section
-                              ? "bg-card text-accent shadow-sm ring-1 ring-border/50 scale-[1.02]"
-                              : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
-                              }`}
-                          >
-                            {section}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <ol className="space-y-4">
-                      {xData.top_questions[xSection]?.map((question: string, i: number) => (
-                        <li key={i} className="text-sm text-foreground leading-relaxed">
-                          <span className="font-bold text-accent">{i + 1}.</span> {question}
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-
-                  {/* Engaged Posts */}
-                  <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
-                    <h2 className="text-xl font-bold text-foreground mb-6">Most Engaged Posts</h2>
-                    <div className="space-y-4">
-                      {xData.post_links?.map((link: string, i: number) => (
-                        <a
-                          key={i}
-                          href={link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block p-4 rounded-lg bg-secondary/30 hover:bg-secondary/50 border border-border/50 transition-all duration-200 group"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-foreground group-hover:text-accent truncate">
-                              View Post on X
-                            </span>
-                            <svg className="w-4 h-4 text-muted-foreground group-hover:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
+                {(() => {
+                  const mappedKey = xSection === "SoSoValue" ? "sosovalue" : xSection === "Sodex" ? "sodex" : "ssi";
+                  return (
+                    <>
+                      {/* Section Specific Summary Card */}
+                      <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                          <h2 className="text-xl font-bold text-foreground">Summary - {xSection}</h2>
+                          <div className="flex bg-secondary/50 p-1 rounded-xl border border-border/50 backdrop-blur-sm">
+                            {(["SoSoValue", "Sodex", "SSI Index"] as const).map((section) => (
+                              <button
+                                key={section}
+                                onClick={() => setXSection(section)}
+                                className={`px-3 py-1 rounded-lg text-[10px] sm:text-xs font-sans font-semibold transition-all duration-300 ${xSection === section
+                                  ? "bg-card text-accent shadow-sm ring-1 ring-border/50 scale-[1.02]"
+                                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
+                                  }`}
+                              >
+                                {section}
+                              </button>
+                            ))}
                           </div>
-                          <p className="text-[10px] text-muted-foreground mt-1 truncate">{link}</p>
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                        </div>
+                        <p className="text-sm text-foreground leading-relaxed">
+                          {xData.summary?.[mappedKey] || "No summary available for this section."}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Top Questions for Section */}
+                        <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
+                          <h2 className="text-xl font-bold text-foreground mb-6">Top Questions - {xSection}</h2>
+                          <ol className="space-y-4">
+                            {(xData.top_questions?.[mappedKey] || []).map((question: string, i: number) => (
+                              <li key={i} className="text-sm text-foreground leading-relaxed">
+                                <span className="font-bold text-accent">{i + 1}.</span> {question}
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
+
+                        {/* Engaged Posts */}
+                        <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
+                          <h2 className="text-xl font-bold text-foreground mb-6">Most Engaged Posts</h2>
+                          <div className="space-y-4">
+                            {xData.post_links?.map((link: string, i: number) => {
+                              // Handle markdown link format: [text](url)
+                              const match = link.match(/\[(.*?)\]\((.*?)\)/);
+                              const displayText = match ? match[1] : "View Post on X";
+                              const href = match ? match[2] : link;
+
+                              return (
+                                <a
+                                  key={i}
+                                  href={href}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block p-4 rounded-lg bg-secondary/30 hover:bg-secondary/50 border border-border/50 transition-all duration-200 group"
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-sm text-foreground group-hover:text-accent truncate">
+                                      {displayText}
+                                    </span>
+                                    <svg className="w-4 h-4 text-muted-foreground group-hover:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                  </div>
+                                  <p className="text-[10px] text-muted-foreground mt-1 truncate">{href}</p>
+                                </a>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
-            )}
+            ) : null}
           </div>
         ) : (
           <div className="text-center py-16">
