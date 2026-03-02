@@ -413,7 +413,7 @@ export default function Dashboard() {
     setError(null)
     try {
       const monthShort = date.toLocaleString("en-US", { month: "short" }).toLowerCase()
-      const day = String(date.getDate())
+      const day = String(date.getDate()).padStart(2, '0')
       const fileName = `${monthShort}${day}.json`
       const url = `https://raw.githubusercontent.com/Eliasdegemu61/soso-x-analysis/main/${fileName}`
 
