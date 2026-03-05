@@ -827,7 +827,7 @@ export default function Dashboard() {
                         {timeframe === "today" ? "Hourly Activity" : timeframe === "weekly" ? "Weekly average Hourly Activity" : "All Time Activity By Hour"}
                       </h2>
                       <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:gap-4">
-                        <span className="text-[10px] text-muted-foreground font-sans uppercase tracking-[0.2em] opacity-70">changing all to UTC +8 SGT</span>
+                        <span className="text-[10px] text-muted-foreground font-sans uppercase tracking-[0.2em] opacity-70">ALL IN UTC+8 (SGT) </span>
                         <div className="flex bg-secondary/50 p-1 rounded-xl border border-border/50 backdrop-blur-sm">
                           {(['today', 'weekly', 'allTime'] as const).map((t) => (
                             <button
@@ -1012,7 +1012,7 @@ export default function Dashboard() {
                     {timeframe === "today" ? "Activity By Hour" : timeframe === "weekly" ? "Weekly Peak Hours (Past 7 Days)" : "All Time Activity By Hour"}
                   </h2>
                   <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:gap-4">
-                    <span className="text-[10px] text-muted-foreground font-sans uppercase tracking-[0.2em] opacity-70">changing all to UTC +8 SGT</span>
+                    <span className="text-[10px] text-muted-foreground font-sans uppercase tracking-[0.2em] opacity-70">ALL IN UTC+8 (SGT) </span>
                     <div className="flex bg-secondary/50 p-1 rounded-xl border border-border/50 backdrop-blur-sm">
                       {(['today', 'weekly', 'allTime'] as const).map((t) => (
                         <button
