@@ -44,15 +44,27 @@ export default function Dashboard() {
   const [calendarMonth, setCalendarMonth] = useState(new Date())
   const { theme, setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const t = (key: keyof typeof translations.en) => translations.en[key]
+  const [lang, setLang] = useState<Lang>("en")
+  const t = (key: keyof typeof translations.en) => translations[lang][key]
   const isDarkMode = resolvedTheme === "dark"
   const [isPollingForToday, setIsPollingForToday] = useState<Record<string, boolean>>({
     SOSOVALUE: false,
     SODEX: false,
   })
+  const [showLangMenu, setShowLangMenu] = useState(false)
+  const langMenuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setMounted(true)
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (langMenuRef.current && !langMenuRef.current.contains(event.target as Node)) {
+        setShowLangMenu(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
   const pollingIntervalsRef = useRef<Record<string, NodeJS.Timeout | null>>({
     SOSOVALUE: null,
@@ -64,6 +76,9 @@ export default function Dashboard() {
   const [cumulativeLoadingError, setCumulativeLoadingError] = useState<string | null>(null)
   const [cumulativeDiscordData, setCumulativeDiscordData] = useState<any>(null)
   const [cumulativeDiscordLoadingError, setCumulativeDiscordLoadingError] = useState<string | null>(null)
+  const [translatedAnalysis, setTranslatedAnalysis] = useState<string | null>(null)
+  const [translatedDiscordData, setTranslatedDiscordData] = useState<any>(null)
+  const [translatedXData, setTranslatedXData] = useState<any>(null)
   const sessionCache = useRef<Record<string, any>>({})
 
 
@@ -114,6 +129,60 @@ export default function Dashboard() {
   const [fallingGMs, setFallingGMs] = useState<any[]>([]); // Declare setFallingGMs variable
   const [timeframe, setTimeframe] = useState<"today" | "weekly" | "allTime">("today")
 
+  useEffect(() => {
+    let isMounted = true
+
+    const fetchTranslation = async () => {
+      if (lang === "en") {
+        setTranslatedAnalysis(null)
+        setTranslatedDiscordData(null)
+        setTranslatedXData(null)
+        return
+      }
+
+      const monthShort = date.toLocaleString("en-US", { month: "short" }).toLowerCase()
+      const day = String(date.getDate())
+      const paddedDay = date.getDate().toString().padStart(2, '0')
+
+      const datePrefix = `${monthShort}${day}`
+      const datePrefixPadded = `${monthShort}${paddedDay}`
+      const langDir = lang === "zh" ? "Chinese" : "Japanese"
+
+      try {
+        if (platform === "telegram") {
+          const url = `https://raw.githubusercontent.com/Eliasdegemu61/Json-data/main/translations/${datePrefix}_Translations/${community}/${langDir}/${datePrefix}_processed.json`
+          const json = await fetchWithCache(url, true)
+          if (isMounted) {
+            setTranslatedAnalysis(json?.ai_analysis || null)
+          }
+        } else if (platform === "discord") {
+          const url = `https://raw.githubusercontent.com/Eliasdegemu61/Json-data/main/translations/${datePrefix}_Translations/DISCORD/${langDir}/${datePrefix}.json`
+          const json = await fetchWithCache(url, true)
+          if (isMounted) {
+            setTranslatedDiscordData(json || null)
+          }
+        } else if (platform === "x") {
+          const url = `https://raw.githubusercontent.com/Eliasdegemu61/Json-data/main/translations/${datePrefix}_Translations/X_ANALYSIS/${langDir}/${datePrefixPadded}.json`
+          const json = await fetchWithCache(url, true)
+          if (isMounted) {
+            setTranslatedXData(json || null)
+          }
+        }
+      } catch (error) {
+        console.warn(`[v0] Failed to fetch translation for ${platform}:`, error)
+        if (isMounted) {
+          if (platform === "telegram") setTranslatedAnalysis(null)
+          if (platform === "discord") setTranslatedDiscordData(null)
+          if (platform === "x") setTranslatedXData(null)
+        }
+      }
+    }
+
+    fetchTranslation()
+
+    return () => { isMounted = false }
+  }, [lang, platform, community, date])
+
   const fetchData = async () => {
     setLoading(true)
     setError(null)
@@ -143,11 +212,11 @@ export default function Dashboard() {
         const json = await fetchWithCache(prevUrl, true)
         setData(json)
         setLastUpdated(new Date())
-        setError(`Showing data from ${previousDay.toDateString()} (today's data not available yet)`)
+        setError(`${t("showingDataFrom")} ${previousDay.toDateString()} ${t("todayDataNotAvailable")}`)
         fetchPreviousDayData(community, previousDay)
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to fetch data")
+      setError(error instanceof Error ? error.message : t("failedToFetch"))
       setData(null)
     } finally {
       setLoading(false)
@@ -233,12 +302,12 @@ export default function Dashboard() {
         console.log("[v0] Discord data loaded from previous day:", json)
         setDiscordData(json)
         setLastUpdated(new Date())
-        setError(`Showing data from ${previousDay.toDateString()} (today's data not available yet)`)
+        setError(`${t("showingDataFrom")} ${previousDay.toDateString()} ${t("todayDataNotAvailable")}`)
         fetchPreviousDayDiscordData(previousDay)
       }
     } catch (error) {
       console.log("[v0] Discord fetch error:", error)
-      setError(error instanceof Error ? error.message : "Failed to fetch Discord data")
+      setError(error instanceof Error ? error.message : t("failedToFetchDiscord"))
       setDiscordData(null)
     } finally {
       setLoading(false)
@@ -488,13 +557,13 @@ export default function Dashboard() {
     : []
 
   const parseAnalysis = (analysis: string) => {
-    const summaryMatch = analysis.match(/Summary:\s*([\s\S]+?)(?=Top Community Questions:|$)/);
+    const summaryMatch = analysis.match(/(?:Summary:|摘要：|概要：)\s*([\s\S]+?)(?=(?:Top Community Questions:|社区热门问题：|热门社区问题：|顶级社区问题：|コミュニティの主な質問：|$))/i);
     let summary = summaryMatch ? summaryMatch[1].trim() : ""
 
     summary = summary.replace("ome users are threatening to report the project to regulatory authorities.", "")
     summary = summary.trim()
 
-    const questionsMatch = analysis.match(/Top Community Questions:\s*([\s\S]+?)$/);
+    const questionsMatch = analysis.match(/(?:Top Community Questions:|社区热门问题：|热门社区问题：|顶级社区问题：|コミュニティの主な質問：)\s*([\s\S]+?)$/i);
 
     return {
       summary,
@@ -502,6 +571,7 @@ export default function Dashboard() {
         ? questionsMatch[1]
           .split("\n")
           .filter((q) => q.trim())
+          .map((q) => q.replace(/^\d+\.\s*/, ""))
           .map((q) => q.replace(/^[-•]\s*/, ""))
         : [],
     }
@@ -594,6 +664,39 @@ export default function Dashboard() {
             <h1 className="text-xl sm:text-4xl lg:text-6xl font-bold text-foreground tracking-tight">{t("communityAnalytics")}</h1>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Language Selector Dropdown */}
+            <div className="relative" ref={langMenuRef}>
+              <button
+                onClick={() => setShowLangMenu(!showLangMenu)}
+                className="flex items-center gap-2 px-3 py-2 bg-card border border-border rounded-lg shadow-sm hover:border-accent/50 transition-all duration-200 text-xs font-sans font-semibold text-foreground uppercase tracking-wider"
+              >
+                <span>{lang === "en" ? "English" : lang === "zh" ? "中文" : "日本語"}</span>
+                <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${showLangMenu ? "rotate-180" : ""}`} />
+              </button>
+
+              {showLangMenu && (
+                <div className="absolute right-0 mt-2 w-32 bg-card border border-border rounded-xl shadow-xl py-1.5 z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
+                  <button
+                    onClick={() => { setLang("en"); setShowLangMenu(false); }}
+                    className={`w-full text-left px-4 py-2 text-xs font-sans font-medium transition-colors ${lang === "en" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                  >
+                    English
+                  </button>
+                  <button
+                    onClick={() => { setLang("zh"); setShowLangMenu(false); }}
+                    className={`w-full text-left px-4 py-2 text-xs font-sans font-medium transition-colors ${lang === "zh" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                  >
+                    中文
+                  </button>
+                  <button
+                    onClick={() => { setLang("ja"); setShowLangMenu(false); }}
+                    className={`w-full text-left px-4 py-2 text-xs font-sans font-medium transition-colors ${lang === "ja" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                  >
+                    日本語
+                  </button>
+                </div>
+              )}
+            </div>
             {/* Dark Mode Toggle */}
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -769,7 +872,7 @@ export default function Dashboard() {
 
         {error && (
           <div className="mb-8 p-5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-200 text-sm">
-            {error.includes("404") ? "No data available for this date yet" : error}
+            {error.includes("404") ? t("noDataForDate") : error}
           </div>
         )}
 
@@ -805,11 +908,11 @@ export default function Dashboard() {
                 {(discordData?.ai_analysis?.questions && discordData.ai_analysis.questions.length > 0) ||
                   discordData?.ai_analysis?.summary ? (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {discordData?.ai_analysis?.questions && discordData.ai_analysis.questions.length > 0 && (
+                    {(translatedDiscordData?.ai_analysis?.questions || discordData?.ai_analysis?.questions)?.length > 0 && (
                       <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                         <h2 className="text-xl font-bold text-foreground mb-6">{t("topQuestions")}</h2>
                         <ol className="space-y-4">
-                          {discordData.ai_analysis.questions.slice(0, 3).map((question: string, i: number) => (
+                          {(translatedDiscordData?.ai_analysis?.questions || discordData.ai_analysis.questions).slice(0, 3).map((question: string, i: number) => (
                             <li key={i} className="text-sm text-foreground leading-relaxed">
                               <span className="font-bold text-accent">{i + 1}.</span> {question}
                             </li>
@@ -818,11 +921,11 @@ export default function Dashboard() {
                       </div>
                     )}
 
-                    {discordData?.ai_analysis?.summary && (
+                    {(translatedDiscordData?.ai_analysis?.summary || discordData?.ai_analysis?.summary) && (
                       <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                         <h2 className="text-xl font-bold text-foreground mb-6">{t("summary")}</h2>
                         <p className="text-sm text-foreground leading-relaxed">
-                          {discordData.ai_analysis.summary}
+                          {translatedDiscordData?.ai_analysis?.summary || discordData.ai_analysis.summary}
                         </p>
                       </div>
                     )}
@@ -996,7 +1099,7 @@ export default function Dashboard() {
                 <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                   <h2 className="text-xl font-bold text-foreground mb-6">{t("topQuestions")}</h2>
                   <ol className="space-y-4">
-                    {parseAnalysis(data.ai_analysis).questions.slice(0, 3).map((q: string) => q.replace(/^\d+\.\s*/, "")).map((question: string, i: number) => (
+                    {parseAnalysis(translatedAnalysis || data.ai_analysis).questions.slice(0, 3).map((q: string) => q.replace(/^\d+\.\s*/, "")).map((question: string, i: number) => (
                       <li key={i} className="text-sm text-foreground leading-relaxed">
                         <span className="font-bold text-accent">{i + 1}.</span> {question}
                       </li>
@@ -1007,7 +1110,7 @@ export default function Dashboard() {
                 <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                   <h2 className="text-xl font-bold text-foreground mb-6">{t("summary")}</h2>
                   <p className="text-foreground leading-relaxed text-base">
-                    {parseAnalysis(data.ai_analysis).summary}
+                    {parseAnalysis(translatedAnalysis || data.ai_analysis).summary}
                   </p>
                 </div>
               </div>
@@ -1179,7 +1282,7 @@ export default function Dashboard() {
                       {/* Section Specific Summary Card */}
                       <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                          <h2 className="text-xl font-bold text-foreground">Summary - {xSection}</h2>
+                          <h2 className="text-xl font-bold text-foreground">{t("summary")} - {xSection === "SoSoValue" ? t("sosovalue") : xSection === "Sodex" ? t("sodex") : t("ssiIndex")}</h2>
                           <div className="flex bg-secondary/50 p-1 rounded-xl border border-border/50 backdrop-blur-sm">
                             {(["SoSoValue", "Sodex", "SSI Index"] as const).map((section) => (
                               <button
@@ -1190,22 +1293,22 @@ export default function Dashboard() {
                                   : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
                                   }`}
                               >
-                                {section}
+                                {section === "SoSoValue" ? t("sosovalue") : section === "Sodex" ? t("sodex") : t("ssiIndex")}
                               </button>
                             ))}
                           </div>
                         </div>
                         <p className="text-sm text-foreground leading-relaxed">
-                          {(xData.summary?.[mappedKey] || t("noSummary"))}
+                          {(translatedXData?.summary?.[mappedKey] || xData.summary?.[mappedKey] || t("noSummary"))}
                         </p>
                       </div>
 
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Top Questions for Section */}
                         <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
-                          <h2 className="text-xl font-bold text-foreground mb-6">{t("topQuestions")} - {xSection}</h2>
+                          <h2 className="text-xl font-bold text-foreground mb-6">{t("topQuestions")} - {xSection === "SoSoValue" ? t("sosovalue") : xSection === "Sodex" ? t("sodex") : t("ssiIndex")}</h2>
                           <ol className="space-y-4">
-                            {(xData.top_questions?.[mappedKey] || []).map((question: string, i: number) => (
+                            {(translatedXData?.top_questions?.[mappedKey] || xData.top_questions?.[mappedKey] || []).map((question: string, i: number) => (
                               <li key={i} className="text-sm text-foreground leading-relaxed">
                                 <span className="font-bold text-accent">{i + 1}.</span> {question}
                               </li>

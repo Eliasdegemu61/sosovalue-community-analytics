@@ -15,6 +15,7 @@ export const translations = {
         // Community selector
         sosovalue: "SoSoValue",
         sodex: "SoDEX",
+        ssiIndex: "SSI Index",
 
         // Language selector
         english: "EN",
@@ -60,6 +61,11 @@ export const translations = {
         dataCumulativeUntil: "Data cumulative until",
         viewPostOnX: "View Post on X",
         updated: "Updated",
+        showingDataFrom: "Showing data from",
+        todayDataNotAvailable: "(today's data not available yet)",
+        failedToFetch: "Failed to fetch data",
+        failedToFetchDiscord: "Failed to fetch Discord data",
+        noDataForDate: "No data available for this date yet",
     },
     zh: {
         // Header
@@ -74,6 +80,7 @@ export const translations = {
         // Community selector
         sosovalue: "SoSoValue",
         sodex: "SoDEX",
+        ssiIndex: "SSI 指数",
 
         // Language selector
         english: "EN",
@@ -119,6 +126,11 @@ export const translations = {
         dataCumulativeUntil: "数据截至",
         viewPostOnX: "在X上查看帖子",
         updated: "更新于",
+        showingDataFrom: "显示数据来自",
+        todayDataNotAvailable: "（今日数据尚未可用）",
+        failedToFetch: "获取数据失败",
+        failedToFetchDiscord: "获取Discord数据失败",
+        noDataForDate: "该日期尚无可用数据",
     },
     ja: {
         // Header
@@ -133,6 +145,7 @@ export const translations = {
         // Community selector
         sosovalue: "SoSoValue",
         sodex: "SoDEX",
+        ssiIndex: "SSI 指数",
 
         // Language selector
         english: "EN",
@@ -178,6 +191,11 @@ export const translations = {
         dataCumulativeUntil: "累積データ 終了日:",
         viewPostOnX: "Xで投稿を表示",
         updated: "更新日",
+        showingDataFrom: "データ表示：",
+        todayDataNotAvailable: "（本日のデータはまだ利用できません）",
+        failedToFetch: "データの取得に失敗しました",
+        failedToFetchDiscord: "Discordデータの取得に失敗しました",
+        noDataForDate: "この日付のデータはまだ利用できません",
     },
 } as const
 
