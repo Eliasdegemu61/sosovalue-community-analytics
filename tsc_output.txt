@@ -1,0 +1,1 @@
+.next/types/validator.ts(62,39): error TS2307: Cannot find module '../../app/api/translate/route.js' or its corresponding type declarations.

@@ -44,19 +44,8 @@ export default function Dashboard() {
   const [calendarMonth, setCalendarMonth] = useState(new Date())
   const { theme, setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const [lang, setLang] = useState<Lang>("en")
-  const t = (key: keyof typeof translations.en) => translations[lang][key]
+  const t = (key: keyof typeof translations.en) => translations.en[key]
   const isDarkMode = resolvedTheme === "dark"
-  const [isTranslating, setIsTranslating] = useState(false)
-  const [translatedContent, setTranslatedContent] = useState<{
-    telegramSummary?: string
-    telegramQuestions?: string[]
-    discordSummary?: string
-    discordQuestions?: string[]
-    xSummaries?: Record<string, string>
-    xQuestions?: Record<string, string[]>
-  } | null>(null)
-  const translationCacheRef = useRef<Record<string, string>>({})
   const [isPollingForToday, setIsPollingForToday] = useState<Record<string, boolean>>({
     SOSOVALUE: false,
     SODEX: false,
@@ -78,94 +67,6 @@ export default function Dashboard() {
   const sessionCache = useRef<Record<string, any>>({})
 
 
-  // --- Translation helpers ---
-  const translateText = async (text: string): Promise<string> => {
-    if (!text || text.trim() === "") return text
-    const cacheKey = `${lang}:${text}`
-    if (translationCacheRef.current[cacheKey]) return translationCacheRef.current[cacheKey]
-    try {
-      const res = await fetch("/api/translate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text,
-          targetLang: lang === "zh" ? "Chinese" : lang === "ja" ? "Japanese" : "English",
-        }),
-      })
-
-      if (!res.ok) {
-        const error = await res.json()
-        if (error.error === "Gemini API key not configured") {
-          console.warn("[i18n] Gemini API key missing. Content remains in English.")
-          return text
-        }
-        console.error("[i18n] Translation API error:", error)
-        throw new Error(`Translation failed: ${error.details || error.error || "Unknown error"}`)
-      }
-
-      const { translatedText } = await res.json()
-      translationCacheRef.current[cacheKey] = translatedText
-      return translatedText
-    } catch (e) {
-      console.error("[i18n] Error during translation:", e)
-      return text
-    }
-  }
-
-  const translateDynamicContent = async (currentData: any, currentDiscord: any, currentX: any) => {
-    setIsTranslating(true)
-    try {
-      const result: NonNullable<typeof translatedContent> = {}
-
-      // Telegram
-      if (currentData?.ai_analysis) {
-        const parsed = parseAnalysis(currentData.ai_analysis)
-        result.telegramSummary = await translateText(parsed.summary)
-        result.telegramQuestions = await Promise.all(
-          parsed.questions.slice(0, 3).map((q: string) => translateText(q.replace(/^\d+\.\s*/, "")))
-        )
-      }
-
-      // Discord
-      if (currentDiscord?.ai_analysis) {
-        if (currentDiscord.ai_analysis.summary)
-          result.discordSummary = await translateText(currentDiscord.ai_analysis.summary)
-        if (currentDiscord.ai_analysis.questions)
-          result.discordQuestions = await Promise.all(
-            currentDiscord.ai_analysis.questions.slice(0, 3).map((q: string) => translateText(q))
-          )
-      }
-
-      // X
-      if (currentX) {
-        result.xSummaries = {}
-        result.xQuestions = {}
-        for (const key of ["sosovalue", "sodex", "ssi"]) {
-          if (currentX.summary?.[key])
-            result.xSummaries![key] = await translateText(currentX.summary[key])
-          if (currentX.top_questions?.[key])
-            result.xQuestions![key] = await Promise.all(
-              currentX.top_questions[key].map((q: string) => translateText(q))
-            )
-        }
-      }
-
-      setTranslatedContent(result)
-    } catch (e) {
-      console.error("[i18n] Translation failed:", e)
-    } finally {
-      setIsTranslating(false)
-    }
-  }
-
-  useEffect(() => {
-    if (lang === "zh" || lang === "ja") {
-      setTranslatedContent(null) // clear stale translations on data change
-      translateDynamicContent(data, discordData, xData)
-    } else {
-      setTranslatedContent(null)
-    }
-  }, [lang, data, discordData, xData])
 
 
   const fetchWithCache = async (url: string, usePersistence = true) => {
@@ -693,47 +594,6 @@ export default function Dashboard() {
             <h1 className="text-xl sm:text-4xl lg:text-6xl font-bold text-foreground tracking-tight">{t("communityAnalytics")}</h1>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            {/* Language Selector */}
-            <div className="flex items-center bg-card border border-border rounded-lg overflow-hidden shadow-sm">
-              <button
-                onClick={() => setLang("en")}
-                className={`px-3 py-2 text-xs font-sans font-semibold transition-all duration-200 ${lang === "en"
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                  }`}
-                aria-label="Switch to English"
-              >
-                EN
-              </button>
-              <div className="w-px h-4 bg-border" />
-              <button
-                onClick={() => setLang("zh")}
-                className={`px-3 py-2 text-xs font-sans font-semibold transition-all duration-200 flex items-center gap-1 ${lang === "zh"
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                  }`}
-                aria-label="Switch to Chinese"
-              >
-                {isTranslating && lang === "zh" && (
-                  <span className="inline-block w-2 h-2 rounded-full border border-current border-t-transparent animate-spin" />
-                )}
-                中文
-              </button>
-              <div className="w-px h-4 bg-border" />
-              <button
-                onClick={() => setLang("ja")}
-                className={`px-3 py-2 text-xs font-sans font-semibold transition-all duration-200 flex items-center gap-1 ${lang === "ja"
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                  }`}
-                aria-label="Switch to Japanese"
-              >
-                {isTranslating && lang === "ja" && (
-                  <span className="inline-block w-2 h-2 rounded-full border border-current border-t-transparent animate-spin" />
-                )}
-                日本語
-              </button>
-            </div>
             {/* Dark Mode Toggle */}
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -949,10 +809,7 @@ export default function Dashboard() {
                       <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                         <h2 className="text-xl font-bold text-foreground mb-6">{t("topQuestions")}</h2>
                         <ol className="space-y-4">
-                          {(lang === "zh" && translatedContent?.discordQuestions
-                            ? translatedContent.discordQuestions
-                            : discordData.ai_analysis.questions.slice(0, 3)
-                          ).map((question: string, i: number) => (
+                          {discordData.ai_analysis.questions.slice(0, 3).map((question: string, i: number) => (
                             <li key={i} className="text-sm text-foreground leading-relaxed">
                               <span className="font-bold text-accent">{i + 1}.</span> {question}
                             </li>
@@ -965,9 +822,7 @@ export default function Dashboard() {
                       <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                         <h2 className="text-xl font-bold text-foreground mb-6">{t("summary")}</h2>
                         <p className="text-sm text-foreground leading-relaxed">
-                          {lang === "zh" && translatedContent?.discordSummary
-                            ? translatedContent.discordSummary
-                            : discordData.ai_analysis.summary}
+                          {discordData.ai_analysis.summary}
                         </p>
                       </div>
                     )}
@@ -1141,10 +996,7 @@ export default function Dashboard() {
                 <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                   <h2 className="text-xl font-bold text-foreground mb-6">{t("topQuestions")}</h2>
                   <ol className="space-y-4">
-                    {(lang === "zh" && translatedContent?.telegramQuestions
-                      ? translatedContent.telegramQuestions
-                      : parseAnalysis(data.ai_analysis).questions.slice(0, 3).map((q: string) => q.replace(/^\d+\.\s*/, ""))
-                    ).map((question: string, i: number) => (
+                    {parseAnalysis(data.ai_analysis).questions.slice(0, 3).map((q: string) => q.replace(/^\d+\.\s*/, "")).map((question: string, i: number) => (
                       <li key={i} className="text-sm text-foreground leading-relaxed">
                         <span className="font-bold text-accent">{i + 1}.</span> {question}
                       </li>
@@ -1155,9 +1007,7 @@ export default function Dashboard() {
                 <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                   <h2 className="text-xl font-bold text-foreground mb-6">{t("summary")}</h2>
                   <p className="text-foreground leading-relaxed text-base">
-                    {lang === "zh" && translatedContent?.telegramSummary
-                      ? translatedContent.telegramSummary
-                      : parseAnalysis(data.ai_analysis).summary}
+                    {parseAnalysis(data.ai_analysis).summary}
                   </p>
                 </div>
               </div>
@@ -1346,9 +1196,7 @@ export default function Dashboard() {
                           </div>
                         </div>
                         <p className="text-sm text-foreground leading-relaxed">
-                          {lang === "zh" && translatedContent?.xSummaries?.[mappedKey]
-                            ? translatedContent.xSummaries[mappedKey]
-                            : (xData.summary?.[mappedKey] || t("noSummary"))}
+                          {(xData.summary?.[mappedKey] || t("noSummary"))}
                         </p>
                       </div>
 
@@ -1357,10 +1205,7 @@ export default function Dashboard() {
                         <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                           <h2 className="text-xl font-bold text-foreground mb-6">{t("topQuestions")} - {xSection}</h2>
                           <ol className="space-y-4">
-                            {(lang === "zh" && translatedContent?.xQuestions?.[mappedKey]
-                              ? translatedContent.xQuestions[mappedKey]
-                              : (xData.top_questions?.[mappedKey] || [])
-                            ).map((question: string, i: number) => (
+                            {(xData.top_questions?.[mappedKey] || []).map((question: string, i: number) => (
                               <li key={i} className="text-sm text-foreground leading-relaxed">
                                 <span className="font-bold text-accent">{i + 1}.</span> {question}
                               </li>
