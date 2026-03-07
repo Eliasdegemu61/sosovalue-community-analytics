@@ -99,7 +99,8 @@ export default function Dashboard() {
           console.warn("[i18n] Gemini API key missing. Content remains in English.")
           return text
         }
-        throw new Error("Translation failed")
+        console.error("[i18n] Translation API error:", error)
+        throw new Error(`Translation failed: ${error.details || error.error || "Unknown error"}`)
       }
 
       const { translatedText } = await res.json()
