@@ -557,13 +557,13 @@ export default function Dashboard() {
     : []
 
   const parseAnalysis = (analysis: string) => {
-    const summaryMatch = analysis.match(/(?:Summary:|摘要：|概要：)\s*([\s\S]+?)(?=(?:Top Community Questions:|社区热门问题：|热门社区问题：|顶级社区问题：|コミュニティの主な質問：|$))/i);
+    const summaryMatch = analysis.match(/(?:Summary:|摘要：|概要：|要約：)\s*([\s\S]+?)(?=(?:Top Community Questions:|社区热门问题：|热门社区问题：|顶级社区问题：|コミュニティの主な質問：|トップコミュニティ質問:|$))/i);
     let summary = summaryMatch ? summaryMatch[1].trim() : ""
 
     summary = summary.replace("ome users are threatening to report the project to regulatory authorities.", "")
     summary = summary.trim()
 
-    const questionsMatch = analysis.match(/(?:Top Community Questions:|社区热门问题：|热门社区问题：|顶级社区问题：|コミュニティの主な質問：)\s*([\s\S]+?)$/i);
+    const questionsMatch = analysis.match(/(?:Top Community Questions:|社区热门问题：|热门社区问题：|顶级社区问题：|コミュニティの主な質問：|トップコミュニティ質問:)\s*([\s\S]+?)$/i);
 
     return {
       summary,
