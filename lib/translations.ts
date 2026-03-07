@@ -1,4 +1,4 @@
-export type Lang = "en" | "zh"
+export type Lang = "en" | "zh" | "ja"
 
 export const translations = {
     en: {
@@ -18,6 +18,7 @@ export const translations = {
         // Language selector
         english: "EN",
         chinese: "中文",
+        japanese: "日本語",
 
         // Summary stats cards
         totalMessages: "Total Messages",
@@ -76,6 +77,7 @@ export const translations = {
         // Language selector
         english: "EN",
         chinese: "中文",
+        japanese: "日本語",
 
         // Summary stats cards
         totalMessages: "消息总数",
@@ -116,6 +118,65 @@ export const translations = {
         dataCumulativeUntil: "数据截至",
         viewPostOnX: "在X上查看帖子",
         updated: "更新于",
+    },
+    ja: {
+        // Header
+        communityAnalytics: "コミュニティ分析",
+        usdNote: "すべてのUSD計算は現在の価格を使用しています",
+
+        // Platform tabs
+        telegram: "Telegram",
+        discord: "Discord",
+        x: "X",
+
+        // Community selector
+        sosovalue: "SoSoValue",
+        sodex: "SoDEX",
+
+        // Language selector
+        english: "EN",
+        chinese: "中文",
+        japanese: "日本語",
+
+        // Summary stats cards
+        totalMessages: "総メッセージ数",
+        activeUsers: "アクティブユーザー",
+
+        // Section headings
+        topQuestions: "よくある質問",
+        summary: "要約",
+        languageSections: "言語セクション",
+        topMods: "トップモデレーター",
+        topChatters: "トップチャッター",
+        allTimeTopMods: "歴代トップモデレーター",
+        mostEngagedPosts: "最もエンゲージメントの高い投稿",
+
+        // Activity chart headings
+        hourlyActivity: "時間別活動",
+        weeklyAvgHourlyActivity: "週平均時間別活動",
+        allTimeActivityByHour: "全期間時間別活動",
+        activityByHour: "時間別活動状況",
+        weeklyPeakHours: "週刊ピークタイム（過去7日間）",
+
+        // Timeframe buttons
+        today: "今日",
+        oneWeek: "1週間",
+        allTime: "全期間",
+
+        // Chart labels
+        allInUTC8: "すべてUTC+8 (SGT)",
+
+        // Loading / empty states
+        loadingData: "データを読み込み中...",
+        noDataAvailable: "選択された日付のデータはありません",
+        noSummary: "このセクションの要約はありません。",
+
+        // Misc
+        messages: "メッセージ",
+        close: "閉じる",
+        dataCumulativeUntil: "累積データ 終了日:",
+        viewPostOnX: "Xで投稿を表示",
+        updated: "更新日",
     },
 } as const
 

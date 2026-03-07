@@ -81,24 +81,32 @@ export default function Dashboard() {
   // --- Translation helpers ---
   const translateText = async (text: string): Promise<string> => {
     if (!text || text.trim() === "") return text
-    if (translationCacheRef.current[text]) return translationCacheRef.current[text]
+    const cacheKey = `${lang}:${text}`
+    if (translationCacheRef.current[cacheKey]) return translationCacheRef.current[cacheKey]
     try {
-      // MyMemory free API — 500 chars/req, no key required
-      const chunks: string[] = []
-      for (let i = 0; i < text.length; i += 490) chunks.push(text.slice(i, i + 490))
-      const parts = await Promise.all(
-        chunks.map(async (chunk) => {
-          const res = await fetch(
-            `https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=en|zh`
-          )
-          const json = await res.json()
-          return json?.responseData?.translatedText ?? chunk
-        })
-      )
-      const result = parts.join("")
-      translationCacheRef.current[text] = result
-      return result
-    } catch {
+      const res = await fetch("/api/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text,
+          targetLang: lang === "zh" ? "Chinese" : lang === "ja" ? "Japanese" : "English",
+        }),
+      })
+
+      if (!res.ok) {
+        const error = await res.json()
+        if (error.error === "Gemini API key not configured") {
+          console.warn("[i18n] Gemini API key missing. Content remains in English.")
+          return text
+        }
+        throw new Error("Translation failed")
+      }
+
+      const { translatedText } = await res.json()
+      translationCacheRef.current[cacheKey] = translatedText
+      return translatedText
+    } catch (e) {
+      console.error("[i18n] Error during translation:", e)
       return text
     }
   }
@@ -150,7 +158,7 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    if (lang === "zh") {
+    if (lang === "zh" || lang === "ja") {
       setTranslatedContent(null) // clear stale translations on data change
       translateDynamicContent(data, discordData, xData)
     } else {
@@ -709,6 +717,20 @@ export default function Dashboard() {
                   <span className="inline-block w-2 h-2 rounded-full border border-current border-t-transparent animate-spin" />
                 )}
                 中文
+              </button>
+              <div className="w-px h-4 bg-border" />
+              <button
+                onClick={() => setLang("ja")}
+                className={`px-3 py-2 text-xs font-sans font-semibold transition-all duration-200 flex items-center gap-1 ${lang === "ja"
+                  ? "bg-accent text-accent-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  }`}
+                aria-label="Switch to Japanese"
+              >
+                {isTranslating && lang === "ja" && (
+                  <span className="inline-block w-2 h-2 rounded-full border border-current border-t-transparent animate-spin" />
+                )}
+                日本語
               </button>
             </div>
             {/* Dark Mode Toggle */}
