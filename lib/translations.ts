@@ -1,3 +1,4 @@
+// Translations for different languages
 export type Lang = "en" | "zh" | "ja"
 
 export const translations = {
