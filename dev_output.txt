@@ -1,0 +1,13 @@
+
+> my-v0-project@0.1.0 dev
+> next dev
+
+ ΓÜá Port 3000 is in use by process 17388, using available port 3001 instead.
+   Γû▓ Next.js 16.0.10 (Turbopack)
+   - Local:         http://localhost:3001
+   - Network:       http://192.168.1.3:3001
+   - Environments: .env.local
+
+ Γ£ô Starting...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+ Γ£ô Ready in 1051ms
