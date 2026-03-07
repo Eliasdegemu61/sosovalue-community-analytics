@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { useTheme } from "next-themes"
 import { ChevronDown, RotateCw, ChevronLeft, ChevronRight, Moon, Sun } from "lucide-react"
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts"
+import { translations, type Lang } from "@/lib/translations"
 
 export const dynamic = "force-dynamic"
 
@@ -43,6 +44,8 @@ export default function Dashboard() {
   const [calendarMonth, setCalendarMonth] = useState(new Date())
   const { theme, setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const [lang, setLang] = useState<Lang>("en")
+  const t = (key: keyof typeof translations.en) => translations[lang][key]
   const isDarkMode = resolvedTheme === "dark"
   const [isPollingForToday, setIsPollingForToday] = useState<Record<string, boolean>>({
     SOSOVALUE: false,
@@ -587,15 +590,42 @@ export default function Dashboard() {
         <div className="mb-8 sm:mb-16 flex justify-between items-start gap-4">
           <div className="flex items-center gap-2 sm:gap-3">
             <img src="https://sosovalue.com/img/192x192.png" alt="SoSoValue" className="w-12 sm:w-16 h-12 sm:h-16 rounded-lg flex-shrink-0" />
-            <h1 className="text-xl sm:text-4xl lg:text-6xl font-bold text-foreground tracking-tight">Community Analytics</h1>
+            <h1 className="text-xl sm:text-4xl lg:text-6xl font-bold text-foreground tracking-tight">{t("communityAnalytics")}</h1>
           </div>
-          <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="p-2 sm:p-3 rounded-lg hover:bg-secondary transition-all duration-200 text-foreground shadow-sm hover:shadow-md flex-shrink-0"
-            aria-label="Toggle dark mode"
-          >
-            {isDarkMode ? <Sun className="w-5 h-5 sm:w-6 sm:h-6" /> : <Moon className="w-5 h-5 sm:w-6 sm:h-6" />}
-          </button>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Language Selector */}
+            <div className="flex items-center bg-card border border-border rounded-lg overflow-hidden shadow-sm">
+              <button
+                onClick={() => setLang("en")}
+                className={`px-3 py-2 text-xs font-sans font-semibold transition-all duration-200 ${lang === "en"
+                  ? "bg-accent text-accent-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  }`}
+                aria-label="Switch to English"
+              >
+                EN
+              </button>
+              <div className="w-px h-4 bg-border" />
+              <button
+                onClick={() => setLang("zh")}
+                className={`px-3 py-2 text-xs font-sans font-semibold transition-all duration-200 ${lang === "zh"
+                  ? "bg-accent text-accent-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  }`}
+                aria-label="Switch to Chinese"
+              >
+                中文
+              </button>
+            </div>
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="p-2 sm:p-3 rounded-lg hover:bg-secondary transition-all duration-200 text-foreground shadow-sm hover:shadow-md"
+              aria-label="Toggle dark mode"
+            >
+              {isDarkMode ? <Sun className="w-5 h-5 sm:w-6 sm:h-6" /> : <Moon className="w-5 h-5 sm:w-6 sm:h-6" />}
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-col gap-3 sm:gap-4 mb-6">
@@ -610,7 +640,7 @@ export default function Dashboard() {
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.336-.373-.123l-6.871 4.326-2.962-.924c-.643-.204-.658-.643.135-.953l11.566-4.461c.538-.196 1.006.128.832.941z" />
               </svg>
-              <span>Telegram</span>
+              <span>{t("telegram")}</span>
             </button>
             <button
               onClick={() => setPlatform("discord")}
@@ -622,7 +652,7 @@ export default function Dashboard() {
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                 <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.211.375-.444.864-.607 1.25a18.27 18.27 0 0 0-5.487 0c-.163-.386-.396-.875-.607-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.873-1.295 1.226-1.994a.076.076 0 0 0-.042-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.294.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.009c.12.098.246.198.373.295a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.076.076 0 0 0-.041.107c.359.698.77 1.364 1.225 1.994a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.056c.5-4.718-.838-8.812-3.549-12.44a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-.965-2.157-2.156 0-1.193.964-2.157 2.157-2.157 1.193 0 2.157.964 2.157 2.157 0 1.191-.964 2.156-2.157 2.156zm7.975 0c-1.183 0-2.157-.965-2.157-2.156 0-1.193.964-2.157 2.157-2.157 1.193 0 2.157.964 2.157 2.157 0 1.191-.964 2.156-2.157 2.156z" />
               </svg>
-              <span>Discord</span>
+              <span>{t("discord")}</span>
             </button>
             <button
               onClick={() => setPlatform("x")}
@@ -634,7 +664,7 @@ export default function Dashboard() {
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                 <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932 6.064-6.932zm-1.292 19.494h2.039L6.486 3.24H4.298l13.311 17.407z" />
               </svg>
-              <span>X</span>
+              <span>{t("x")}</span>
             </button>
           </div>
 
@@ -736,7 +766,7 @@ export default function Dashboard() {
                     onClick={() => setShowCalendar(false)}
                     className="w-full mt-5 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-150 font-sans rounded-lg hover:bg-secondary"
                   >
-                    Close
+                    {t("close")}
                   </button>
                 </div>
               )}
@@ -756,7 +786,7 @@ export default function Dashboard() {
           </div>
 
           {lastUpdated && (
-            <span className="text-xs text-muted-foreground italic block w-full sm:w-auto mt-2 sm:mt-0">Updated {lastUpdated.toLocaleTimeString()}</span>
+            <span className="text-xs text-muted-foreground italic block w-full sm:w-auto mt-2 sm:mt-0">{t("updated")} {lastUpdated.toLocaleTimeString()}</span>
           )}
         </div>
 
@@ -768,7 +798,7 @@ export default function Dashboard() {
 
         {loading && !(data || discordData) ? (
           <div className="text-center py-16">
-            <p className="text-muted-foreground">Loading data...</p>
+            <p className="text-muted-foreground">{t("loadingData")}</p>
           </div>
         ) : (data && platform === "telegram") || (discordData && platform === "discord") || (xData && platform === "x") ? (
           <div className="space-y-10">
@@ -777,7 +807,7 @@ export default function Dashboard() {
                 <div className="flex flex-wrap gap-3">
                   <div className="bg-card border border-border rounded-lg px-4 py-2.5 hover:border-accent/50 transition-all duration-200 flex items-center gap-4">
                     <div className="flex flex-col">
-                      <p className="text-[10px] text-muted-foreground font-sans uppercase tracking-wider mb-0.5">Total Messages</p>
+                      <p className="text-[10px] text-muted-foreground font-sans uppercase tracking-wider mb-0.5">{t("totalMessages")}</p>
                       <div className="text-base sm:text-lg font-bold text-accent leading-none">
                         {discordData.vitals?.total_messages?.toLocaleString() || 0}
                       </div>
@@ -786,7 +816,7 @@ export default function Dashboard() {
                   </div>
                   <div className="bg-card border border-border rounded-lg px-4 py-2.5 hover:border-accent/50 transition-all duration-200 flex items-center gap-4">
                     <div className="flex flex-col">
-                      <p className="text-[10px] text-muted-foreground font-sans uppercase tracking-wider mb-0.5">Active Users</p>
+                      <p className="text-[10px] text-muted-foreground font-sans uppercase tracking-wider mb-0.5">{t("activeUsers")}</p>
                       <div className="text-base sm:text-lg font-bold text-accent leading-none">
                         {discordData.vitals?.active_users_count?.toLocaleString() || 0}
                       </div>
@@ -800,7 +830,7 @@ export default function Dashboard() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {discordData?.ai_analysis?.questions && discordData.ai_analysis.questions.length > 0 && (
                       <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
-                        <h2 className="text-xl font-bold text-foreground mb-6">Top Questions</h2>
+                        <h2 className="text-xl font-bold text-foreground mb-6">{t("topQuestions")}</h2>
                         <ol className="space-y-4">
                           {discordData.ai_analysis.questions.slice(0, 3).map((question: string, i: number) => (
                             <li key={i} className="text-sm text-foreground leading-relaxed">
@@ -813,7 +843,7 @@ export default function Dashboard() {
 
                     {discordData?.ai_analysis?.summary && (
                       <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
-                        <h2 className="text-xl font-bold text-foreground mb-6">Summary</h2>
+                        <h2 className="text-xl font-bold text-foreground mb-6">{t("summary")}</h2>
                         <p className="text-sm text-foreground leading-relaxed">{discordData.ai_analysis.summary}</p>
                       </div>
                     )}
@@ -824,21 +854,21 @@ export default function Dashboard() {
                   <div className="bg-card rounded-xl p-8 sm:p-10 hover:shadow-lg transition-all duration-200 sketchbook-paper">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
                       <h2 className="text-2xl font-bold text-foreground capitalize">
-                        {timeframe === "today" ? "Hourly Activity" : timeframe === "weekly" ? "Weekly average Hourly Activity" : "All Time Activity By Hour"}
+                        {timeframe === "today" ? t("hourlyActivity") : timeframe === "weekly" ? t("weeklyAvgHourlyActivity") : t("allTimeActivityByHour")}
                       </h2>
                       <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:gap-4">
-                        <span className="text-[10px] text-muted-foreground font-sans uppercase tracking-[0.2em] opacity-70">ALL IN UTC+8 (SGT) </span>
+                        <span className="text-[10px] text-muted-foreground font-sans uppercase tracking-[0.2em] opacity-70">{t("allInUTC8")} </span>
                         <div className="flex bg-secondary/50 p-1 rounded-xl border border-border/50 backdrop-blur-sm">
-                          {(['today', 'weekly', 'allTime'] as const).map((t) => (
+                          {(['today', 'weekly', 'allTime'] as const).map((tf) => (
                             <button
-                              key={t}
-                              onClick={() => setTimeframe(t)}
-                              className={`px-4 py-1.5 rounded-lg text-xs font-sans font-semibold transition-all duration-300 ${timeframe === t
+                              key={tf}
+                              onClick={() => setTimeframe(tf)}
+                              className={`px-4 py-1.5 rounded-lg text-xs font-sans font-semibold transition-all duration-300 ${timeframe === tf
                                 ? "bg-card text-accent shadow-lg ring-1 ring-border/50 scale-[1.02]"
                                 : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
                                 }`}
                             >
-                              {t === 'today' ? 'Today' : t === 'weekly' ? '1 Week' : 'All Time'}
+                              {tf === 'today' ? t("today") : tf === 'weekly' ? t("oneWeek") : t("allTime")}
                             </button>
                           ))}
                         </div>
@@ -900,7 +930,7 @@ export default function Dashboard() {
                       </AreaChart>
                     </ResponsiveContainer>
                     {timeframe === "allTime" && cumulativeDiscordData?.cumulative_until && (
-                      <p className="text-xs text-muted-foreground mt-4">Data cumulative until {cumulativeDiscordData.cumulative_until}</p>
+                      <p className="text-xs text-muted-foreground mt-4">{t("dataCumulativeUntil")} {cumulativeDiscordData.cumulative_until}</p>
                     )}
                   </div>
                 )}
@@ -910,7 +940,7 @@ export default function Dashboard() {
                   {discordData?.top_moderators && discordData.top_moderators.length > 0 && (
                     <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                       <div className="flex justify-between items-start mb-6">
-                        <h2 className="text-xl font-bold text-foreground">Top Mods</h2>
+                        <h2 className="text-xl font-bold text-foreground">{t("topMods")}</h2>
                         <span className="text-xs text-muted-foreground font-sans">{date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
                       </div>
                       <ol className="space-y-3">
@@ -926,13 +956,13 @@ export default function Dashboard() {
                   {discordData?.top_chatters && discordData.top_chatters.length > 0 && (
                     <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                       <div className="flex justify-between items-start mb-6">
-                        <h2 className="text-xl font-bold text-foreground">Top Chatters</h2>
+                        <h2 className="text-xl font-bold text-foreground">{t("topChatters")}</h2>
                         <span className="text-xs text-muted-foreground font-sans">{date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
                       </div>
                       <ol className="space-y-3">
                         {discordData.top_chatters.slice(0, 10).map((chatter: any, i: number) => (
                           <li key={i} className="text-sm text-foreground">
-                            <span className="font-bold text-accent">{i + 1}.</span> {chatter.name} - {chatter.messages} messages
+                            <span className="font-bold text-accent">{i + 1}.</span> {chatter.name} - {chatter.messages} {t("messages")}
                           </li>
                         ))}
                       </ol>
@@ -945,11 +975,11 @@ export default function Dashboard() {
 
                     {cumulativeDiscordData.top_moderators && cumulativeDiscordData.top_moderators.length > 0 && (
                       <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
-                        <h2 className="text-xl font-bold text-foreground mb-6">All Time Top Mods</h2>
+                        <h2 className="text-xl font-bold text-foreground mb-6">{t("allTimeTopMods")}</h2>
                         <ol className="space-y-3">
                           {cumulativeDiscordData.top_moderators.map((mod: any, i: number) => (
                             <li key={i} className="text-sm text-foreground">
-                              <span className="font-bold text-accent">{i + 1}.</span> {mod.name} - {mod.messages || mod.count} messages
+                              <span className="font-bold text-accent">{i + 1}.</span> {mod.name} - {mod.messages || mod.count} {t("messages")}
                             </li>
                           ))}
                         </ol>
@@ -963,7 +993,7 @@ export default function Dashboard() {
               <div className="flex flex-wrap gap-3">
                 <div className="bg-card border border-border rounded-lg px-4 py-2.5 hover:border-accent/50 transition-all duration-200 flex items-center gap-4">
                   <div className="flex flex-col">
-                    <p className="text-[10px] text-muted-foreground font-sans uppercase tracking-wider mb-0.5">Total Messages</p>
+                    <p className="text-[10px] text-muted-foreground font-sans uppercase tracking-wider mb-0.5">{t("totalMessages")}</p>
                     <div className="text-base sm:text-lg font-bold text-accent leading-none">
                       {data.totals?.messages?.toLocaleString() || 0}
                     </div>
@@ -972,7 +1002,7 @@ export default function Dashboard() {
                 </div>
                 <div className="bg-card border border-border rounded-lg px-4 py-2.5 hover:border-accent/50 transition-all duration-200 flex items-center gap-4">
                   <div className="flex flex-col">
-                    <p className="text-[10px] text-muted-foreground font-sans uppercase tracking-wider mb-0.5">Active Users</p>
+                    <p className="text-[10px] text-muted-foreground font-sans uppercase tracking-wider mb-0.5">{t("activeUsers")}</p>
                     <div className="text-base sm:text-lg font-bold text-accent leading-none">
                       {data.totals?.users?.toLocaleString() || 0}
                     </div>
@@ -985,7 +1015,7 @@ export default function Dashboard() {
             {platform === "telegram" && data && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
-                  <h2 className="text-xl font-bold text-foreground mb-6">Top Questions</h2>
+                  <h2 className="text-xl font-bold text-foreground mb-6">{t("topQuestions")}</h2>
                   <ol className="space-y-4">
                     {parseAnalysis(data.ai_analysis).questions.slice(0, 3).map((question: string, i: number) => {
                       const cleanedQuestion = question.replace(/^\d+\.\s*/, "")
@@ -999,7 +1029,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
-                  <h2 className="text-xl font-bold text-foreground mb-6">Summary</h2>
+                  <h2 className="text-xl font-bold text-foreground mb-6">{t("summary")}</h2>
                   <p className="text-foreground leading-relaxed text-base">{parseAnalysis(data.ai_analysis).summary}</p>
                 </div>
               </div>
@@ -1009,21 +1039,21 @@ export default function Dashboard() {
               <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
                   <h2 className="text-2xl font-bold text-foreground capitalize">
-                    {timeframe === "today" ? "Activity By Hour" : timeframe === "weekly" ? "Weekly Peak Hours (Past 7 Days)" : "All Time Activity By Hour"}
+                    {timeframe === "today" ? t("activityByHour") : timeframe === "weekly" ? t("weeklyPeakHours") : t("allTimeActivityByHour")}
                   </h2>
                   <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:gap-4">
-                    <span className="text-[10px] text-muted-foreground font-sans uppercase tracking-[0.2em] opacity-70">ALL IN UTC+8 (SGT) </span>
+                    <span className="text-[10px] text-muted-foreground font-sans uppercase tracking-[0.2em] opacity-70">{t("allInUTC8")} </span>
                     <div className="flex bg-secondary/50 p-1 rounded-xl border border-border/50 backdrop-blur-sm">
-                      {(['today', 'weekly', 'allTime'] as const).map((t) => (
+                      {(['today', 'weekly', 'allTime'] as const).map((tf) => (
                         <button
-                          key={t}
-                          onClick={() => setTimeframe(t)}
-                          className={`px-4 py-1.5 rounded-lg text-xs font-sans font-semibold transition-all duration-300 ${timeframe === t
+                          key={tf}
+                          onClick={() => setTimeframe(tf)}
+                          className={`px-4 py-1.5 rounded-lg text-xs font-sans font-semibold transition-all duration-300 ${timeframe === tf
                             ? "bg-card text-accent shadow-lg ring-1 ring-border/50 scale-[1.02]"
                             : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
                             }`}
                         >
-                          {t === 'today' ? 'Today' : t === 'weekly' ? '1 Week' : 'All Time'}
+                          {tf === 'today' ? t("today") : tf === 'weekly' ? t("oneWeek") : t("allTime")}
                         </button>
                       ))}
                     </div>
@@ -1085,7 +1115,7 @@ export default function Dashboard() {
                   </AreaChart>
                 </ResponsiveContainer>
                 {timeframe === "allTime" && cumulativeData?.cumulative_until && (
-                  <p className="text-xs text-muted-foreground mt-4">Data cumulative until {cumulativeData.cumulative_until}</p>
+                  <p className="text-xs text-muted-foreground mt-4">{t("dataCumulativeUntil")} {cumulativeData.cumulative_until}</p>
                 )}
               </div>
             )}
@@ -1095,7 +1125,7 @@ export default function Dashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {data.sections && (
                     <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
-                      <h2 className="text-xl font-bold text-foreground mb-6">Language Sections</h2>
+                      <h2 className="text-xl font-bold text-foreground mb-6">{t("languageSections")}</h2>
                       <div className="space-y-3 text-sm">
                         {data.sections.slice(0, community === "SOSOVALUE" ? 5 : data.sections.length).map((section: any) => (
                           <div key={section.name} className="flex justify-between items-center">
@@ -1112,13 +1142,13 @@ export default function Dashboard() {
                   {data.leaderboards?.moderators && data.leaderboards.moderators.length > 0 && (
                     <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                       <div className="flex justify-between items-start mb-6">
-                        <h2 className="text-xl font-bold text-foreground">Top Mods</h2>
+                        <h2 className="text-xl font-bold text-foreground">{t("topMods")}</h2>
                         <span className="text-xs text-muted-foreground font-sans">{date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
                       </div>
                       <ol className="space-y-3">
                         {data.leaderboards.moderators.slice(0, 10).map((mod: any, i: number) => (
                           <li key={i} className="text-sm text-foreground">
-                            <span className="font-bold text-accent">{i + 1}.</span> {mod.name} - {mod.count} messages
+                            <span className="font-bold text-accent">{i + 1}.</span> {mod.name} - {mod.count} {t("messages")}
                           </li>
                         ))}
                       </ol>
@@ -1128,13 +1158,13 @@ export default function Dashboard() {
                   {data.leaderboards?.community_users && data.leaderboards.community_users.length > 0 && (
                     <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                       <div className="flex justify-between items-start mb-6">
-                        <h2 className="text-xl font-bold text-foreground">Top Chatters</h2>
+                        <h2 className="text-xl font-bold text-foreground">{t("topChatters")}</h2>
                         <span className="text-xs text-muted-foreground font-sans">{date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
                       </div>
                       <ol className="space-y-3">
                         {data.leaderboards.community_users.slice(0, 10).map((user: any, i: number) => (
                           <li key={i} className="text-sm text-foreground">
-                            <span className="font-bold text-accent">{i + 1}.</span> {user.name} - {user.count} messages
+                            <span className="font-bold text-accent">{i + 1}.</span> {user.name} - {user.count} {t("messages")}
                           </li>
                         ))}
                       </ol>
@@ -1147,11 +1177,11 @@ export default function Dashboard() {
 
                     {cumulativeData.top_moderators && cumulativeData.top_moderators.length > 0 && (
                       <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
-                        <h2 className="text-xl font-bold text-foreground mb-6">All Time Top Mods</h2>
+                        <h2 className="text-xl font-bold text-foreground mb-6">{t("allTimeTopMods")}</h2>
                         <ol className="space-y-3">
                           {cumulativeData.top_moderators.map((mod: any, i: number) => (
                             <li key={i} className="text-sm text-foreground">
-                              <span className="font-bold text-accent">{i + 1}.</span> {mod.name} - {mod.messages} messages
+                              <span className="font-bold text-accent">{i + 1}.</span> {mod.name} - {mod.messages} {t("messages")}
                             </li>
                           ))}
                         </ol>
@@ -1188,14 +1218,14 @@ export default function Dashboard() {
                           </div>
                         </div>
                         <p className="text-sm text-foreground leading-relaxed">
-                          {xData.summary?.[mappedKey] || "No summary available for this section."}
+                          {xData.summary?.[mappedKey] || t("noSummary")}
                         </p>
                       </div>
 
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Top Questions for Section */}
                         <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
-                          <h2 className="text-xl font-bold text-foreground mb-6">Top Questions - {xSection}</h2>
+                          <h2 className="text-xl font-bold text-foreground mb-6">{t("topQuestions")} - {xSection}</h2>
                           <ol className="space-y-4">
                             {(xData.top_questions?.[mappedKey] || []).map((question: string, i: number) => (
                               <li key={i} className="text-sm text-foreground leading-relaxed">
@@ -1207,12 +1237,12 @@ export default function Dashboard() {
 
                         {/* Engaged Posts */}
                         <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
-                          <h2 className="text-xl font-bold text-foreground mb-6">Most Engaged Posts</h2>
+                          <h2 className="text-xl font-bold text-foreground mb-6">{t("mostEngagedPosts")}</h2>
                           <div className="space-y-4">
                             {xData.post_links?.map((link: string, i: number) => {
                               // Handle markdown link format: [text](url)
                               const match = link.match(/\[(.*?)\]\((.*?)\)/);
-                              const displayText = match ? match[1] : "View Post on X";
+                              const displayText = match ? match[1] : t("viewPostOnX");
                               const href = match ? match[2] : link;
 
                               return (
@@ -1246,7 +1276,7 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="text-center py-16">
-            <p className="text-muted-foreground">No data available for the selected date</p>
+            <p className="text-muted-foreground">{t("noDataAvailable")}</p>
           </div>
         )}
       </div>
