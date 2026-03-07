@@ -649,6 +649,30 @@ export default function Dashboard() {
     )
   }
 
+  const formatHourTick = (tick: string | number) => {
+    const tickStr = String(tick).trim().toLowerCase()
+
+    if (tickStr.includes("am") || tickStr.includes("pm")) {
+      const hr = tickStr.replace(/(am|pm|\s)/g, '')
+      const ampm = tickStr.includes("pm") ? "pm" : "am"
+      const parsedHr = parseInt(hr, 10)
+      return isNaN(parsedHr) ? tickStr : `${parsedHr}${ampm}`
+    }
+
+    let hourNumStr = tickStr
+    if (tickStr.includes(':')) {
+      hourNumStr = tickStr.split(':')[0]
+    }
+    const hour = parseInt(hourNumStr, 10)
+    if (isNaN(hour)) return tickStr
+
+    const ampm = hour >= 12 ? 'pm' : 'am'
+    let stdHour = hour % 12
+    if (stdHour === 0) stdHour = 12
+
+    return `${stdHour}${ampm}`
+  }
+
   if (!mounted) {
     return null
   }
@@ -988,6 +1012,7 @@ export default function Dashboard() {
                           dataKey="hour"
                           axisLine={false}
                           tickLine={false}
+                          tickFormatter={formatHourTick}
                           tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                           interval={window.innerWidth < 640 ? 3 : 1}
                         />
@@ -1172,6 +1197,7 @@ export default function Dashboard() {
                       dataKey="hour"
                       axisLine={false}
                       tickLine={false}
+                      tickFormatter={formatHourTick}
                       tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                       interval={window.innerWidth < 640 ? 3 : 1}
                     />
