@@ -85,9 +85,12 @@ export default function Dashboard() {
 
 
   const fetchWithCache = async (url: string, usePersistence = true) => {
+    const CACHE_DURATION = 2 * 60 * 1000; // 2 minutes
+
     // 1. Check Session Cache (In-Memory)
-    if (sessionCache.current[url]) {
-      return sessionCache.current[url]
+    const sessionHit = sessionCache.current[url]
+    if (sessionHit && sessionHit.timestamp && (Date.now() - sessionHit.timestamp < CACHE_DURATION)) {
+      return sessionHit.data
     }
 
     // 2. Check LocalStorage (Persistence) for historical data
@@ -96,8 +99,10 @@ export default function Dashboard() {
         const cached = localStorage.getItem(`soso_cache_${url}`)
         if (cached) {
           const parsed = JSON.parse(cached)
-          sessionCache.current[url] = parsed
-          return parsed
+          if (parsed.timestamp && (Date.now() - parsed.timestamp < CACHE_DURATION)) {
+            sessionCache.current[url] = parsed
+            return parsed.data
+          }
         }
       } catch (e) {
         console.warn("Cache read error", e)
@@ -109,12 +114,13 @@ export default function Dashboard() {
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
 
     const data = await response.json()
+    const cacheEntry = { data, timestamp: Date.now() }
 
     // 4. Update Caches
-    sessionCache.current[url] = data
+    sessionCache.current[url] = cacheEntry
     if (usePersistence) {
       try {
-        localStorage.setItem(`soso_cache_${url}`, JSON.stringify(data))
+        localStorage.setItem(`soso_cache_${url}`, JSON.stringify(cacheEntry))
       } catch (e) {
         console.warn("Cache write error", e)
       }
