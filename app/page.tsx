@@ -689,9 +689,10 @@ export default function Dashboard() {
     >
       <div className="max-w-7xl mx-auto">
         <div className="mb-8 sm:mb-16 flex justify-between items-start gap-4">
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <img src="https://sosovalue.com/img/192x192.png" alt="SoSoValue" className="w-12 sm:w-16 h-12 sm:h-16 rounded-lg flex-shrink-0" />
             <h1 className="text-xl sm:text-4xl lg:text-6xl font-bold text-foreground tracking-tight">{t("communityAnalytics")}</h1>
+            <span className="text-xs sm:text-sm text-red-500 font-medium self-end mb-1 lg:mb-2 ml-1">!Server failed to update</span>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             {/* Language Selector Dropdown */}
@@ -895,9 +896,12 @@ export default function Dashboard() {
             </button>
           </div>
 
-          {lastUpdated && (
-            <span className="text-xs text-muted-foreground italic block w-full sm:w-auto mt-2 sm:mt-0">{t("updated")} {lastUpdated.toLocaleTimeString()}</span>
-          )}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-2 sm:mt-0">
+            {lastUpdated && (
+              <span className="text-xs text-muted-foreground italic block w-full sm:w-auto">{t("updated")} {lastUpdated.toLocaleTimeString()}</span>
+            )}
+            <span className="text-xs text-red-500 font-medium whitespace-nowrap">!Server failed to update</span>
+          </div>
         </div>
 
         {error && (
