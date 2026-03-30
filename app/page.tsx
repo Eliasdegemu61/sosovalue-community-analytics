@@ -25,6 +25,7 @@ interface DashboardData {
 export default function Dashboard() {
   const [platform, setPlatform] = useState<"telegram" | "discord" | "x">("discord")
   const [xSection, setXSection] = useState<"SoSoValue" | "Sodex" | "SSI Index">("SoSoValue")
+  const [discordSection, setDiscordSection] = useState<"retail" | "trading" | "tickets" | "dev">("retail")
   const [xData, setXData] = useState<any>(null)
   const [community, setCommunity] = useState("SOSOVALUE")
   const [showCommunityMenu, setShowCommunityMenu] = useState(false)
@@ -133,7 +134,7 @@ export default function Dashboard() {
     { value: "SODEX", label: "SoDEX" },
   ]
   const [fallingGMs, setFallingGMs] = useState<any[]>([]); // Declare setFallingGMs variable
-  const [timeframe, setTimeframe] = useState<"today" | "weekly" | "allTime">("today")
+  const [timeframe, setTimeframe] = useState<"today" | "weekly">("today")
 
   useEffect(() => {
     let isMounted = true
@@ -284,7 +285,7 @@ export default function Dashboard() {
     try {
       const monthShort = date.toLocaleString("en-US", { month: "short" }).toLowerCase()
       const day = String(date.getDate())
-      const fileName = `${monthShort}${day}.json`
+      const fileName = `${monthShort}${day}data.json`
       const isToday = date.toDateString() === new Date().toDateString()
       const url = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/main/${fileName}${isToday ? `?t=${Date.now()}` : ""}`
 
@@ -301,7 +302,7 @@ export default function Dashboard() {
         previousDay.setDate(previousDay.getDate() - 1)
         const prevMonthShort = previousDay.toLocaleString("en-US", { month: "short" }).toLowerCase()
         const prevDay = String(previousDay.getDate())
-        const prevFileName = `${prevMonthShort}${prevDay}.json`
+        const prevFileName = `${prevMonthShort}${prevDay}data.json`
         const prevUrl = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/main/${prevFileName}`
 
         const json = await fetchWithCache(prevUrl, true)
@@ -326,7 +327,7 @@ export default function Dashboard() {
       previousDay.setDate(previousDay.getDate() - 1)
       const monthShort = previousDay.toLocaleString("en-US", { month: "short" }).toLowerCase()
       const day = String(previousDay.getDate())
-      const fileName = `${monthShort}${day}.json`
+      const fileName = `${monthShort}${day}data.json`
       const url = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/main/${fileName}`
 
       const json = await fetchWithCache(url, true)
@@ -407,7 +408,7 @@ export default function Dashboard() {
 
         const monthShort = dayDate.toLocaleString("en-US", { month: "short" }).toLowerCase()
         const day = String(dayDate.getDate())
-        const fileName = `${monthShort}${day}.json`
+        const fileName = `${monthShort}${day}data.json`
         const url = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/main/${fileName}`
 
         return fetchWithCache(url, true).catch(() => null)
@@ -425,10 +426,10 @@ export default function Dashboard() {
       })
 
       const hourLabels = [
-        "00:00", "01:00", "02:00", "03:00", "04:00", "05:00",
-        "06:00", "07:00", "08:00", "09:00", "10:00", "11:00",
-        "12:00", "13:00", "14:00", "15:00", "16:00", "17:00",
-        "18:00", "19:00", "20:00", "21:00", "22:00", "23:00",
+        "12 AM", "01 AM", "02 AM", "03 AM", "04 AM", "05 AM",
+        "06 AM", "07 AM", "08 AM", "09 AM", "10 AM", "11 AM",
+        "12 PM", "01 PM", "02 PM", "03 PM", "04 PM", "05 PM",
+        "06 PM", "07 PM", "08 PM", "09 PM", "10 PM", "11 PM",
       ]
 
       const chartData = hourLabels.map((hour) => ({
@@ -930,35 +931,48 @@ export default function Dashboard() {
                     <div className="flex flex-col">
                       <p className="text-[10px] text-muted-foreground font-sans uppercase tracking-wider mb-0.5">{t("activeUsers")}</p>
                       <div className="text-base sm:text-lg font-bold text-accent leading-none">
-                        {discordData.vitals?.active_users_count?.toLocaleString() || 0}
+                        {discordData.vitals?.active_users?.toLocaleString() || 0}
                       </div>
                     </div>
-                    <ComparisonBadge current={discordData.vitals?.active_users_count || 0} previous={previousDayDiscordData?.vitals?.active_users_count || 0} />
+                    <ComparisonBadge current={discordData.vitals?.active_users || 0} previous={previousDayDiscordData?.vitals?.active_users || 0} />
                   </div>
                 </div>
 
-                {(discordData?.ai_analysis?.questions && discordData.ai_analysis.questions.length > 0) ||
-                  discordData?.ai_analysis?.summary ? (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {(translatedDiscordData?.ai_analysis?.questions || discordData?.ai_analysis?.questions)?.length > 0 && (
+                {discordData?.reports ? (
+                  <div className="space-y-6">
+                    <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                        <h2 className="text-xl font-bold text-foreground">{t("summary")} - {t(discordSection as keyof typeof translations.en)}</h2>
+                        <div className="flex bg-secondary/50 p-1 rounded-xl border border-border/50 backdrop-blur-sm">
+                          {(["retail", "trading", "tickets", "dev"] as const).map((section) => (
+                            <button
+                              key={section}
+                              onClick={() => setDiscordSection(section)}
+                              className={`px-3 py-1 rounded-lg text-[10px] sm:text-xs font-sans font-semibold transition-all duration-300 ${discordSection === section
+                                ? "bg-card text-accent shadow-sm ring-1 ring-border/50 scale-[1.02]"
+                                : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
+                                }`}
+                            >
+                              {t(section as keyof typeof translations.en)}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-sm text-foreground leading-relaxed">
+                        {(translatedDiscordData?.reports?.[discordSection]?.summary || discordData.reports[discordSection]?.summary || t("noSummary"))}
+                      </p>
+                    </div>
+
+                    {(translatedDiscordData?.reports?.[discordSection]?.questions || discordData.reports[discordSection]?.questions)?.length > 0 && (
                       <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
-                        <h2 className="text-xl font-bold text-foreground mb-6">{t("topQuestions")}</h2>
+                        <h2 className="text-xl font-bold text-foreground mb-6">{t("topQuestions")} - {t(discordSection as keyof typeof translations.en)}</h2>
                         <ol className="space-y-4">
-                          {(translatedDiscordData?.ai_analysis?.questions || discordData.ai_analysis.questions).slice(0, 3).map((question: string, i: number) => (
+                          {(translatedDiscordData?.reports?.[discordSection]?.questions || discordData.reports[discordSection]?.questions).map((question: string, i: number) => (
                             <li key={i} className="text-sm text-foreground leading-relaxed">
                               <span className="font-bold text-accent">{i + 1}.</span> {question}
                             </li>
                           ))}
                         </ol>
-                      </div>
-                    )}
-
-                    {(translatedDiscordData?.ai_analysis?.summary || discordData?.ai_analysis?.summary) && (
-                      <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
-                        <h2 className="text-xl font-bold text-foreground mb-6">{t("summary")}</h2>
-                        <p className="text-sm text-foreground leading-relaxed">
-                          {translatedDiscordData?.ai_analysis?.summary || discordData.ai_analysis.summary}
-                        </p>
                       </div>
                     )}
                   </div>
@@ -973,7 +987,7 @@ export default function Dashboard() {
                       <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:gap-4">
                         <span className="text-[10px] text-muted-foreground font-sans uppercase tracking-[0.2em] opacity-70">{t("allInUTC8")} </span>
                         <div className="flex bg-secondary/50 p-1 rounded-xl border border-border/50 backdrop-blur-sm">
-                          {(['today', 'weekly', 'allTime'] as const).map((tf) => (
+                          {(['today', 'weekly'] as const).map((tf) => (
                             <button
                               key={tf}
                               onClick={() => setTimeframe(tf)}
@@ -982,7 +996,7 @@ export default function Dashboard() {
                                 : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
                                 }`}
                             >
-                              {tf === 'today' ? t("today") : tf === 'weekly' ? t("oneWeek") : t("allTime")}
+                              {tf === 'today' ? t("today") : t("oneWeek")}
                             </button>
                           ))}
                         </div>
@@ -996,17 +1010,7 @@ export default function Dashboard() {
                               hour,
                               count: count as number,
                             }))
-                            : timeframe === "weekly"
-                              ? (weeklyDiscordData || [])
-                              : [
-                                "00:00", "01:00", "02:00", "03:00", "04:00", "05:00",
-                                "06:00", "07:00", "08:00", "09:00", "10:00", "11:00",
-                                "12:00", "13:00", "14:00", "15:00", "16:00", "17:00",
-                                "18:00", "19:00", "20:00", "21:00", "22:00", "23:00",
-                              ].map((hour) => ({
-                                hour,
-                                count: cumulativeDiscordData?.total_active_hours?.[hour] || 0,
-                              }))
+                            : (weeklyDiscordData || [])
                         }
                       >
                         <defs>
@@ -1044,64 +1048,11 @@ export default function Dashboard() {
                         />
                       </AreaChart>
                     </ResponsiveContainer>
-                    {timeframe === "allTime" && cumulativeDiscordData?.cumulative_until && (
-                      <p className="text-xs text-muted-foreground mt-4">{t("dataCumulativeUntil")} {cumulativeDiscordData.cumulative_until}</p>
-                    )}
                   </div>
                 )}
 
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {discordData?.top_moderators && discordData.top_moderators.length > 0 && (
-                    <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
-                      <div className="flex justify-between items-start mb-6">
-                        <h2 className="text-xl font-bold text-foreground">{t("topMods")}</h2>
-                        <span className="text-xs text-muted-foreground font-sans">{date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
-                      </div>
-                      <ol className="space-y-3">
-                        {discordData.top_moderators.slice(0, 5).map((mod: any, i: number) => (
-                          <li key={i} className="text-sm text-foreground">
-                            <span className="font-bold text-accent">{i + 1}.</span> {mod.name} - {mod.messages} messages
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-                  )}
 
-                  {discordData?.top_chatters && discordData.top_chatters.length > 0 && (
-                    <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
-                      <div className="flex justify-between items-start mb-6">
-                        <h2 className="text-xl font-bold text-foreground">{t("topChatters")}</h2>
-                        <span className="text-xs text-muted-foreground font-sans">{date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
-                      </div>
-                      <ol className="space-y-3">
-                        {discordData.top_chatters.slice(0, 10).map((chatter: any, i: number) => (
-                          <li key={i} className="text-sm text-foreground">
-                            <span className="font-bold text-accent">{i + 1}.</span> {chatter.name} - {chatter.messages} {t("messages")}
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-                  )}
-                </div>
-
-                {cumulativeDiscordData && (
-                  <>
-
-                    {cumulativeDiscordData.top_moderators && cumulativeDiscordData.top_moderators.length > 0 && (
-                      <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
-                        <h2 className="text-xl font-bold text-foreground mb-6">{t("allTimeTopMods")}</h2>
-                        <ol className="space-y-3">
-                          {cumulativeDiscordData.top_moderators.map((mod: any, i: number) => (
-                            <li key={i} className="text-sm text-foreground">
-                              <span className="font-bold text-accent">{i + 1}.</span> {mod.name} - {mod.messages || mod.count} {t("messages")}
-                            </li>
-                          ))}
-                        </ol>
-                      </div>
-                    )}
-                  </>
-                )}
               </>
             )}
             {platform === "telegram" && data && (
@@ -1158,7 +1109,7 @@ export default function Dashboard() {
                   <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:gap-4">
                     <span className="text-[10px] text-muted-foreground font-sans uppercase tracking-[0.2em] opacity-70">{t("allInUTC8")} </span>
                     <div className="flex bg-secondary/50 p-1 rounded-xl border border-border/50 backdrop-blur-sm">
-                      {(['today', 'weekly', 'allTime'] as const).map((tf) => (
+                      {(['today', 'weekly'] as const).map((tf) => (
                         <button
                           key={tf}
                           onClick={() => setTimeframe(tf)}
@@ -1167,7 +1118,7 @@ export default function Dashboard() {
                             : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
                             }`}
                         >
-                          {tf === 'today' ? t("today") : tf === 'weekly' ? t("oneWeek") : t("allTime")}
+                          {tf === 'today' ? t("today") : t("oneWeek")}
                         </button>
                       ))}
                     </div>
@@ -1181,17 +1132,7 @@ export default function Dashboard() {
                           hour,
                           count: count as number,
                         }))
-                        : timeframe === "weekly"
-                          ? (weeklyData || [])
-                          : [
-                            "12 AM", "01 AM", "02 AM", "03 AM", "04 AM", "05 AM",
-                            "06 AM", "07 AM", "08 AM", "09 AM", "10 AM", "11 AM",
-                            "12 PM", "01 PM", "02 PM", "03 PM", "04 PM", "05 PM",
-                            "06 PM", "07 PM", "08 PM", "09 PM", "10 PM", "11 PM",
-                          ].map((hour) => ({
-                            hour,
-                            count: cumulativeData?.total_active_hours?.[hour] || 0,
-                          }))
+                        : (weeklyData || [])
                     }
                   >
                     <defs>
@@ -1229,9 +1170,6 @@ export default function Dashboard() {
                     />
                   </AreaChart>
                 </ResponsiveContainer>
-                {timeframe === "allTime" && cumulativeData?.cumulative_until && (
-                  <p className="text-xs text-muted-foreground mt-4">{t("dataCumulativeUntil")} {cumulativeData.cumulative_until}</p>
-                )}
               </div>
             )}
 
