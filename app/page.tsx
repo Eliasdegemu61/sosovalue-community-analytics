@@ -1292,11 +1292,22 @@ export default function Dashboard() {
                         <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                           <h2 className="text-xl font-bold text-foreground mb-6">{t("mostEngagedPosts")}</h2>
                           <div className="space-y-4">
-                            {xData.post_links?.map((link: string, i: number) => {
+                            {(xData["Top post_links on that date with the highest engagement, atleast 3 posts"] || xData.post_links || []).map((link: string, i: number) => {
+                              let href: string = link;
+                              let displayText: string = t("viewPostOnX" as any) as string;
+
                               // Handle markdown link format: [text](url)
-                              const match = link.match(/\[(.*?)\]\((.*?)\)/);
-                              const displayText = match ? match[1] : t("viewPostOnX");
-                              const href = match ? match[2] : link;
+                              const mdMatch = link.match(/\[(.*?)\]\((.*?)\)/);
+                              if (mdMatch) {
+                                displayText = mdMatch[1];
+                                href = mdMatch[2];
+                              } else {
+                                // Handle raw URL optionally followed by (text)
+                                const urlMatch = link.match(/^(https?:\/\/[^\s]+)/);
+                                const textMatch = link.match(/\((.*?)\)/);
+                                if (urlMatch) href = urlMatch[1];
+                                if (textMatch) displayText = textMatch[1];
+                              }
 
                               return (
                                 <a
