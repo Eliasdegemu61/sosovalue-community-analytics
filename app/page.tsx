@@ -787,7 +787,7 @@ export default function Dashboard() {
         </div>
 
         <div className="flex flex-col gap-3 sm:gap-4 mb-6">
-          <div className="flex flex-row gap-2 sm:gap-2">
+          <div className="flex flex-row flex-wrap gap-2 sm:gap-2">
             <button
               onClick={() => setPlatform("telegram")}
               className={`px-4 py-2 rounded-lg font-sans text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-200 flex items-center gap-2 flex-1 sm:flex-none justify-center sm:justify-start ${platform === "telegram"
@@ -826,7 +826,7 @@ export default function Dashboard() {
             </button>
             <button
               onClick={() => setPlatform("weekly")}
-              className={`px-4 py-2 rounded-lg font-sans text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-200 flex items-center gap-2 flex-1 sm:flex-none justify-center sm:justify-start ${platform === "weekly"
+              className={`px-4 py-2 rounded-lg font-sans text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-200 flex items-center gap-2 w-full sm:w-auto sm:flex-none justify-center sm:justify-start ${platform === "weekly"
                 ? "bg-accent text-accent-foreground shadow-md"
                 : "bg-card border border-border text-foreground hover:border-accent"
                 }`}
