@@ -5,6 +5,7 @@ export const translations = {
     en: {
         // Header
         communityAnalytics: "Community Analytics",
+        aiNotice: "contains AI generated insights based on limited context ,  minor terminology or phrasing inaccuracies may occur.",
         usdNote: "all USD calculations use current prices",
 
         // Platform tabs
@@ -76,6 +77,7 @@ export const translations = {
     zh: {
         // Header
         communityAnalytics: "社区分析",
+        aiNotice: "包含基于有限上下文的 AI 生成见解，可能会出现少量术语或表述不准确的情况。",
         usdNote: "所有USD计算均使用当前价格",
 
         // Platform tabs
@@ -147,6 +149,7 @@ export const translations = {
     ja: {
         // Header
         communityAnalytics: "コミュニティ分析",
+        aiNotice: "限られた文脈に基づく AI 生成のインサイトが含まれており、用語や表現に若干の不正確さが生じる場合があります。",
         usdNote: "すべてのUSD計算は現在の価格を使用しています",
 
         // Platform tabs

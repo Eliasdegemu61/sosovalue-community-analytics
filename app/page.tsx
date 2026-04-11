@@ -734,7 +734,12 @@ export default function Dashboard() {
         <div className="mb-8 sm:mb-16 flex justify-between items-start gap-4">
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <img src="https://sosovalue.com/img/192x192.png" alt="SoSoValue" className="w-12 sm:w-16 h-12 sm:h-16 rounded-lg flex-shrink-0" />
-            <h1 className="text-xl sm:text-4xl lg:text-6xl font-bold text-foreground tracking-tight">{t("communityAnalytics")}</h1>
+            <div className="flex flex-col">
+              <h1 className="text-xl sm:text-4xl lg:text-6xl font-bold text-foreground tracking-tight">{t("communityAnalytics")}</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 opacity-80 italic font-sans leading-tight">
+                {t("aiNotice")}
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             {/* Language Selector Dropdown */}
