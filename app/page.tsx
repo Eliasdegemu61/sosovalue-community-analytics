@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useTheme } from "next-themes"
-import { ChevronDown, RotateCw, ChevronLeft, ChevronRight, Moon, Sun } from "lucide-react"
+import { ChevronDown, RotateCw, ChevronLeft, ChevronRight, Moon, Sun, FileText } from "lucide-react"
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts"
 import { translations, type Lang } from "@/lib/translations"
 
@@ -23,7 +23,7 @@ interface DashboardData {
 }
 
 export default function Dashboard() {
-  const [platform, setPlatform] = useState<"telegram" | "discord" | "x">("discord")
+  const [platform, setPlatform] = useState<"telegram" | "discord" | "x" | "weekly">("discord")
   const [xSection, setXSection] = useState<"SoSoValue" | "Sodex" | "SSI Index">("SoSoValue")
   const [discordSection, setDiscordSection] = useState<"retail" | "trading" | "tickets" | "dev">("retail")
   const [xData, setXData] = useState<any>(null)
@@ -80,6 +80,7 @@ export default function Dashboard() {
   const [translatedAnalysis, setTranslatedAnalysis] = useState<string | null>(null)
   const [translatedDiscordData, setTranslatedDiscordData] = useState<any>(null)
   const [translatedXData, setTranslatedXData] = useState<any>(null)
+  const [weeklyReportData, setWeeklyReportData] = useState<any>(null)
   const sessionCache = useRef<Record<string, any>>({})
 
 
@@ -509,6 +510,43 @@ export default function Dashboard() {
     }
   }
 
+  const fetchWeeklyReport = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const monthShort = date.toLocaleString("en-US", { month: "short" }).toLowerCase()
+      const day = String(date.getDate())
+      const fileName = `weekly${monthShort}${day}.json`
+      const url = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/refs/heads/main/${fileName}`
+
+      console.log("[v0] Weekly report fetch attempting:", url)
+      const json = await fetchWithCache(url, true)
+      console.log("[v0] Weekly report data loaded:", json)
+      setWeeklyReportData(json)
+      setLastUpdated(new Date())
+    } catch (error) {
+      console.log("[v0] Weekly report: Current date not found, trying previous day")
+      const previousDay = new Date(date)
+      previousDay.setDate(previousDay.getDate() - 1)
+      const prevMonthShort = previousDay.toLocaleString("en-US", { month: "short" }).toLowerCase()
+      const prevDay = String(previousDay.getDate())
+      const prevFileName = `weekly${prevMonthShort}${prevDay}.json`
+      const prevUrl = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/refs/heads/main/${prevFileName}`
+
+      try {
+        const json = await fetchWithCache(prevUrl, true)
+        setWeeklyReportData(json)
+        setLastUpdated(new Date())
+        setError(`${t("showingDataFrom")} ${previousDay.toDateString()} ${t("todayDataNotAvailable")}`)
+      } catch (fallbackError) {
+        setError(error instanceof Error ? error.message : "Failed to fetch weekly report data")
+        setWeeklyReportData(null)
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     if (platform === "telegram") {
       fetchData()
@@ -525,6 +563,10 @@ export default function Dashboard() {
     } else if (platform === "x") {
       fetchXData()
       const interval = setInterval(fetchXData, 3600000)
+      return () => clearInterval(interval)
+    } else if (platform === "weekly") {
+      fetchWeeklyReport()
+      const interval = setInterval(fetchWeeklyReport, 3600000)
       return () => clearInterval(interval)
     }
   }, [platform, community, date])
@@ -777,6 +819,16 @@ export default function Dashboard() {
               </svg>
               <span>{t("x")}</span>
             </button>
+            <button
+              onClick={() => setPlatform("weekly")}
+              className={`px-4 py-2 rounded-lg font-sans text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-200 flex items-center gap-2 flex-1 sm:flex-none justify-center sm:justify-start ${platform === "weekly"
+                ? "bg-accent text-accent-foreground shadow-md"
+                : "bg-card border border-border text-foreground hover:border-accent"
+                }`}
+            >
+              <FileText className="w-4 h-4" />
+              <span>{t("weeklyReport")}</span>
+            </button>
           </div>
 
           {platform === "x" && (
@@ -913,7 +965,7 @@ export default function Dashboard() {
           <div className="text-center py-16">
             <p className="text-muted-foreground">{t("loadingData")}</p>
           </div>
-        ) : (data && platform === "telegram") || (discordData && platform === "discord") || (xData && platform === "x") ? (
+        ) : (data && platform === "telegram") || (discordData && platform === "discord") || (xData && platform === "x") || (weeklyReportData && platform === "weekly") ? (
           <div className="space-y-10">
             {platform === "discord" && discordData && (
               <>
@@ -1337,6 +1389,66 @@ export default function Dashboard() {
                 })()}
               </div>
             ) : null}
+
+            {platform === "weekly" && weeklyReportData && (
+              <div className="space-y-6">
+                <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                    <div className="flex flex-col gap-1">
+                      <h2 className="text-xl font-bold text-foreground">{t("summary")} - {t(discordSection as keyof typeof translations.en)}</h2>
+                      <p className="text-xs text-muted-foreground font-sans font-medium">
+                        {(() => {
+                          const start = new Date(date)
+                          start.setDate(start.getDate() - 6)
+                          const format = (d: Date) => d.toLocaleDateString(lang === "en" ? "en-US" : lang === "zh" ? "zh-CN" : "ja-JP", { month: lang === "en" ? "long" : "short", day: "numeric" })
+                          return `${format(start)} - ${format(date)}`
+                        })()}
+                      </p>
+                    </div>
+                    <div className="flex bg-secondary/50 p-1 rounded-xl border border-border/50 backdrop-blur-sm">
+                      {(["retail", "trading", "tickets", "dev"] as const).map((section) => (
+                        <button
+                          key={section}
+                          onClick={() => setDiscordSection(section)}
+                          className={`px-3 py-1 rounded-lg text-[10px] sm:text-xs font-sans font-semibold transition-all duration-300 ${discordSection === section
+                            ? "bg-card text-accent shadow-sm ring-1 ring-border/50 scale-[1.02]"
+                            : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
+                            }`}
+                        >
+                          {t(section as keyof typeof translations.en)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-sm text-foreground leading-relaxed">
+                    {weeklyReportData.reports?.[discordSection]?.summary || t("noSummary")}
+                  </p>
+                </div>
+
+                {weeklyReportData.reports?.[discordSection]?.questions?.length > 0 && (
+                  <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
+                    <div className="flex flex-col gap-1 mb-6">
+                      <h2 className="text-xl font-bold text-foreground">{t("topQuestions")} - {t(discordSection as keyof typeof translations.en)}</h2>
+                      <p className="text-xs text-muted-foreground font-sans font-medium">
+                        {(() => {
+                          const start = new Date(date)
+                          start.setDate(start.getDate() - 6)
+                          const format = (d: Date) => d.toLocaleDateString(lang === "en" ? "en-US" : lang === "zh" ? "zh-CN" : "ja-JP", { month: lang === "en" ? "long" : "short", day: "numeric" })
+                          return `${format(start)} - ${format(date)}`
+                        })()}
+                      </p>
+                    </div>
+                    <ol className="space-y-4">
+                      {weeklyReportData.reports[discordSection].questions.map((question: string, i: number) => (
+                        <li key={i} className="text-sm text-foreground leading-relaxed">
+                          <span className="font-bold text-accent">{i + 1}.</span> {question}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-center py-16">
