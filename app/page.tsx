@@ -209,20 +209,31 @@ export default function Dashboard() {
         setLastUpdated(new Date())
         fetchPreviousDayData(community, date)
       } catch (error) {
-        console.log(`[v0] Data not available for ${date.toDateString()}, attempting to load previous day's data...`)
+        const isTodayOrFuture = date.setHours(0, 0, 0, 0) >= new Date().setHours(0, 0, 0, 0)
 
-        const previousDay = new Date(date)
-        previousDay.setDate(previousDay.getDate() - 1)
-        const prevMonthShort = previousDay.toLocaleString("en-US", { month: "short" }).toLowerCase()
-        const prevDay = String(previousDay.getDate())
-        const prevFileName = `${prevMonthShort}${prevDay}_processed.json`
-        const prevUrl = `https://raw.githubusercontent.com/Eliasdegemu61/Json-data/main/${community}/${prevFileName}`
+        if (isTodayOrFuture) {
+          console.log(`[v0] Today's data not available, attempting fallback for ${community}`)
+          const previousDay = new Date(date)
+          previousDay.setDate(previousDay.getDate() - 1)
+          const prevMonthShort = previousDay.toLocaleString("en-US", { month: "short" }).toLowerCase()
+          const prevDay = String(previousDay.getDate())
+          const prevFileName = `${prevMonthShort}${prevDay}_processed.json`
+          const prevUrl = `https://raw.githubusercontent.com/Eliasdegemu61/Json-data/main/${community}/${prevFileName}`
 
-        const json = await fetchWithCache(prevUrl, true)
-        setData(json)
-        setLastUpdated(new Date())
-        setError(`${t("showingDataFrom")} ${previousDay.toDateString()} ${t("todayDataNotAvailable")}`)
-        fetchPreviousDayData(community, previousDay)
+          try {
+            const json = await fetchWithCache(prevUrl, true)
+            setData(json)
+            setLastUpdated(new Date())
+            setError(`${t("showingDataFrom")} ${previousDay.toDateString()} ${t("todayDataNotAvailable")}`)
+            fetchPreviousDayData(community, previousDay)
+            return
+          } catch (fallbackError) {
+            // Fall through to no data available
+          }
+        }
+
+        setError(t("noDataForDate"))
+        setData(null)
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : t("failedToFetch"))
@@ -299,20 +310,31 @@ export default function Dashboard() {
         setLastUpdated(new Date())
         fetchPreviousDayDiscordData(date)
       } catch (error) {
-        console.log("[v0] Discord: Current date not found, trying previous day")
-        const previousDay = new Date(date)
-        previousDay.setDate(previousDay.getDate() - 1)
-        const prevMonthShort = previousDay.toLocaleString("en-US", { month: "short" }).toLowerCase()
-        const prevDay = String(previousDay.getDate())
-        const prevFileName = `${prevMonthShort}${prevDay}data.json`
-        const prevUrl = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/main/${prevFileName}`
+        const isTodayOrFuture = date.setHours(0, 0, 0, 0) >= new Date().setHours(0, 0, 0, 0)
 
-        const json = await fetchWithCache(prevUrl, true)
-        console.log("[v0] Discord data loaded from previous day:", json)
-        setDiscordData(json)
-        setLastUpdated(new Date())
-        setError(`${t("showingDataFrom")} ${previousDay.toDateString()} ${t("todayDataNotAvailable")}`)
-        fetchPreviousDayDiscordData(previousDay)
+        if (isTodayOrFuture) {
+          console.log("[v0] Discord: Current date not available, trying fallback")
+          const previousDay = new Date(date)
+          previousDay.setDate(previousDay.getDate() - 1)
+          const prevMonthShort = previousDay.toLocaleString("en-US", { month: "short" }).toLowerCase()
+          const prevDay = String(previousDay.getDate())
+          const prevFileName = `${prevMonthShort}${prevDay}data.json`
+          const prevUrl = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/main/${prevFileName}`
+
+          try {
+            const json = await fetchWithCache(prevUrl, true)
+            setDiscordData(json)
+            setLastUpdated(new Date())
+            setError(`${t("showingDataFrom")} ${previousDay.toDateString()} ${t("todayDataNotAvailable")}`)
+            fetchPreviousDayDiscordData(previousDay)
+            return
+          } catch (fallbackError) {
+            // Fall through
+          }
+        }
+
+        setError(t("noDataForDate"))
+        setDiscordData(null)
       }
     } catch (error) {
       console.log("[v0] Discord fetch error:", error)
@@ -510,23 +532,30 @@ export default function Dashboard() {
       setWeeklyReportData(json)
       setLastUpdated(new Date())
     } catch (error) {
-      console.log("[v0] Weekly report: Current date not found, trying previous day")
-      const previousDay = new Date(date)
-      previousDay.setDate(previousDay.getDate() - 1)
-      const prevMonthShort = previousDay.toLocaleString("en-US", { month: "short" }).toLowerCase()
-      const prevDay = String(previousDay.getDate())
-      const prevFileName = `weekly${prevMonthShort}${prevDay}.json`
-      const prevUrl = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/refs/heads/main/${prevFileName}`
+      const isTodayOrFuture = date.setHours(0, 0, 0, 0) >= new Date().setHours(0, 0, 0, 0)
 
-      try {
-        const json = await fetchWithCache(prevUrl, true)
-        setWeeklyReportData(json)
-        setLastUpdated(new Date())
-        setError(`${t("showingDataFrom")} ${previousDay.toDateString()} ${t("todayDataNotAvailable")}`)
-      } catch (fallbackError) {
-        setError(error instanceof Error ? error.message : "Failed to fetch weekly report data")
-        setWeeklyReportData(null)
+      if (isTodayOrFuture) {
+        console.log("[v0] Weekly report: Current date not found, attempting fallback")
+        const previousDay = new Date(date)
+        previousDay.setDate(previousDay.getDate() - 1)
+        const prevMonthShort = previousDay.toLocaleString("en-US", { month: "short" }).toLowerCase()
+        const prevDay = String(previousDay.getDate())
+        const prevFileName = `weekly${prevMonthShort}${prevDay}.json`
+        const prevUrl = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/refs/heads/main/${prevFileName}`
+
+        try {
+          const json = await fetchWithCache(prevUrl, true)
+          setWeeklyReportData(json)
+          setLastUpdated(new Date())
+          setError(`${t("showingDataFrom")} ${previousDay.toDateString()} ${t("todayDataNotAvailable")}`)
+          return
+        } catch (fallbackError) {
+          // Fall through
+        }
       }
+
+      setError(t("noDataForDate"))
+      setWeeklyReportData(null)
     } finally {
       setLoading(false)
     }
@@ -544,21 +573,27 @@ export default function Dashboard() {
       console.log("[v0] Weekly suggestions data loaded:", json)
       setWeeklySuggestions(json)
     } catch (error) {
-      console.log("[v0] Weekly suggestions: Current date not found, trying previous day")
-      const previousDay = new Date(date)
-      previousDay.setDate(previousDay.getDate() - 1)
-      const prevMonthShort = previousDay.toLocaleString("en-US", { month: "short" }).toLowerCase()
-      const prevDay = String(previousDay.getDate())
-      const prevFileName = `segg${prevMonthShort}${prevDay}.json`
-      const prevUrl = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/refs/heads/main/weekly_suggestions/${prevFileName}`
+      const isTodayOrFuture = date.setHours(0, 0, 0, 0) >= new Date().setHours(0, 0, 0, 0)
 
-      try {
-        const json = await fetchWithCache(prevUrl, true)
-        setWeeklySuggestions(json)
-      } catch (fallbackError) {
-        console.error("[v0] Failed to fetch weekly suggestions:", fallbackError)
-        setWeeklySuggestions(null)
+      if (isTodayOrFuture) {
+        console.log("[v0] Weekly suggestions: Current date not found, attempting fallback")
+        const previousDay = new Date(date)
+        previousDay.setDate(previousDay.getDate() - 1)
+        const prevMonthShort = previousDay.toLocaleString("en-US", { month: "short" }).toLowerCase()
+        const prevDay = String(previousDay.getDate())
+        const prevFileName = `segg${prevMonthShort}${prevDay}.json`
+        const prevUrl = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/refs/heads/main/weekly_suggestions/${prevFileName}`
+
+        try {
+          const json = await fetchWithCache(prevUrl, true)
+          setWeeklySuggestions(json)
+          return
+        } catch (fallbackError) {
+          // Fall through
+        }
       }
+
+      setWeeklySuggestions(null)
     }
   }
 
@@ -754,7 +789,10 @@ export default function Dashboard() {
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <img src="https://sosovalue.com/img/192x192.png" alt="SoSoValue" className="w-12 sm:w-16 h-12 sm:h-16 rounded-lg flex-shrink-0" />
             <div className="flex flex-col">
-              <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold text-foreground tracking-tight">{t("communityAnalytics")}</h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold text-foreground tracking-tight">{t("communityAnalytics")}</h1>
+                <span className="px-2 py-0.5 mt-1 sm:mt-2 text-[10px] font-sans font-bold bg-accent/10 text-accent border border-accent/20 rounded-full">v2.0</span>
+              </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground mt-2 opacity-80 italic font-sans leading-tight max-w-2xl">
                 {t("aiNotice")}
               </p>

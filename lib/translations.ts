@@ -63,7 +63,7 @@ export const translations = {
         // Misc
         messages: "messages",
         close: "Close",
-        teamSuggestions: "Team Suggestions",
+        teamSuggestions: "Team Suggestions based on 7 days chat logs",
         actionPoint: "Action Point",
         actionType: "Action Type",
         resolve: "Resolve",
@@ -80,7 +80,7 @@ export const translations = {
         todayDataNotAvailable: "(today's data not available yet)",
         failedToFetch: "Failed to fetch data",
         failedToFetchDiscord: "Failed to fetch Discord data",
-        noDataForDate: "No data available for this date yet",
+        noDataForDate: "no data available for this date",
     },
     zh: {
         // Header
@@ -143,7 +143,7 @@ export const translations = {
         // Misc
         messages: "条消息",
         close: "关闭",
-        teamSuggestions: "团队建议",
+        teamSuggestions: "基于 7 天聊天日志的团队建议",
         actionPoint: "行动点",
         actionType: "行动类型",
         resolve: "解决",
@@ -223,7 +223,7 @@ export const translations = {
         // Misc
         messages: "メッセージ",
         close: "閉じる",
-        teamSuggestions: "チームへの提案",
+        teamSuggestions: "7日間のチャットログに基づくチームへの提案",
         actionPoint: "アクションポイント",
         actionType: "アクションタイプ",
         resolve: "解決する",
