@@ -6,6 +6,7 @@ export const translations = {
         // Header
         communityAnalytics: "Community Analytics",
         aiNotice: "contains AI generated insights based on limited context ,  minor terminology or phrasing inaccuracies may occur.",
+        minimalActivityNotice: "This group shows minimal activity; sentiment insights may not be reliable and are not included",
         usdNote: "all USD calculations use current prices",
 
         // Platform tabs
@@ -78,6 +79,7 @@ export const translations = {
         // Header
         communityAnalytics: "社区分析",
         aiNotice: "包含基于有限上下文的 AI 生成见解，可能会出现少量术语或表述不准确的情况。",
+        minimalActivityNotice: "该群组活跃度较低；情感见解可能不可靠，且未包含在内",
         usdNote: "所有USD计算均使用当前价格",
 
         // Platform tabs
@@ -150,6 +152,7 @@ export const translations = {
         // Header
         communityAnalytics: "コミュニティ分析",
         aiNotice: "限られた文脈に基づく AI 生成のインサイトが含まれており、用語や表現に若干の不正確さが生じる場合があります。",
+        minimalActivityNotice: "このグループの活動は最小限です。センチメント分析は信頼性が低い可能性があるため、含まれていません",
         usdNote: "すべてのUSD計算は現在の価格を使用しています",
 
         // Platform tabs

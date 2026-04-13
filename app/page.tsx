@@ -966,6 +966,12 @@ export default function Dashboard() {
           </div>
         )}
 
+        {platform === "telegram" && community === "SODEX" && (
+          <div className="mb-8 p-5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg text-amber-800 dark:text-amber-200 text-sm italic font-sans shadow-sm">
+            {t("minimalActivityNotice")}
+          </div>
+        )}
+
         {loading && !(data || discordData) ? (
           <div className="text-center py-16">
             <p className="text-muted-foreground">{t("loadingData")}</p>
@@ -1135,7 +1141,10 @@ export default function Dashboard() {
               </div>
             )}
 
+
             {platform === "telegram" && data && (
+
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                   <h2 className="text-xl font-bold text-foreground mb-6">{t("topQuestions")}</h2>
