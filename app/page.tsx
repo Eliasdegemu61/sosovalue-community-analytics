@@ -515,9 +515,9 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <ResponsiveContainer width="100%" height={300}>
-                      <AreaChart data={timeframe === "today" ? Object.entries(discordData.hourly_activity).map(([h, c]) => ({ hour: h, count: c as number })) : (weeklyDiscordData || [])}>
+                      <AreaChart data={timeframe === "today" ? Object.entries(discordData.hourly_activity).map(([h, c]) => ({ hour: h, count: c as number })) : (weeklyDiscordData || [])} margin={{ left: -20, right: 10, top: 10, bottom: 0 }}>
                         <XAxis dataKey="hour" axisLine={false} tickLine={false} tickFormatter={formatHourTick} tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} interval={window.innerWidth < 640 ? 3 : 1} />
-                        <YAxis axisLine={false} tickLine={false} tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
+                        <YAxis axisLine={false} tickLine={false} width={40} tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
                         <Tooltip contentStyle={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "8px" }} />
                         <Area type="monotone" dataKey="count" stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.1} strokeWidth={2} />
                       </AreaChart>
@@ -566,13 +566,13 @@ export default function Dashboard() {
                 </div>
 
                 {data.sections && data.sections.length > 0 && (
-                  <div className="bg-card border border-border rounded-2xl p-8 sketchbook-paper">
-                    <h2 className="text-xl font-bold mb-6">{t("languageSections")}</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-card border border-border rounded-xl p-5">
+                    <h2 className="text-sm font-bold mb-4 text-muted-foreground uppercase tracking-widest">{t("languageSections")}</h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                       {data.sections.map((section, i) => (
-                        <div key={i} className="bg-secondary/30 rounded-xl p-4 border border-border/50">
-                          <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">{section.name}</p>
-                          <p className="text-lg font-bold text-accent">{section.msgs.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground uppercase ml-1">{t("messages")}</span></p>
+                        <div key={i} className="bg-secondary/20 rounded-lg p-3 border border-border/30">
+                          <p className="text-[9px] text-muted-foreground/70 uppercase font-bold mb-0.5 truncate">{section.name}</p>
+                          <p className="text-sm font-bold text-accent">{section.msgs.toLocaleString()} <span className="text-[8px] font-normal text-muted-foreground uppercase ml-0.5">{t("messages")}</span></p>
                         </div>
                       ))}
                     </div>
@@ -589,9 +589,9 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <ResponsiveContainer width="100%" height={300}>
-                    <AreaChart data={timeframe === "today" ? Object.entries(data.active_hours_sgt).map(([h, c]) => ({ hour: h, count: c as number })) : (weeklyData || [])}>
+                    <AreaChart data={timeframe === "today" ? Object.entries(data.active_hours_sgt).map(([h, c]) => ({ hour: h, count: c as number })) : (weeklyData || [])} margin={{ left: -20, right: 10, top: 10, bottom: 0 }}>
                       <XAxis dataKey="hour" axisLine={false} tickLine={false} tickFormatter={formatHourTick} tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} interval={window.innerWidth < 640 ? 3 : 1} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
+                      <YAxis axisLine={false} tickLine={false} width={40} tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
                       <Tooltip contentStyle={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "8px" }} />
                       <Area type="monotone" dataKey="count" stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.1} strokeWidth={2} />
                     </AreaChart>
@@ -599,72 +599,41 @@ export default function Dashboard() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-card border border-border rounded-2xl p-8 sketchbook-paper">
-                      <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                        <span className="text-accent">✦</span> {t("topMods")}
+                    <div className="bg-card border border-border rounded-xl p-5">
+                      <h2 className="text-sm font-bold mb-4 text-muted-foreground uppercase tracking-widest">
+                        {t("topMods")}
                       </h2>
-                      <div className="space-y-4">
+                      <div className="space-y-2.5">
                         {(() => {
-                          const maxCount = Math.max(...data.leaderboards.moderators.map((m: any) => m.count), 1);
-                          return data.leaderboards.moderators.slice(0, 5).map((m: any, i: number) => (
-                            <div key={i} className="group transition-all hover:bg-secondary/20 p-2 -m-2 rounded-xl">
-                              <div className="flex items-center gap-4 mb-1">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ring-2 ring-background shadow-sm ${
-                                  i === 0 ? "bg-amber-400 text-white" : 
-                                  i === 1 ? "bg-slate-300 text-slate-700" : 
-                                  i === 2 ? "bg-orange-400 text-white" : 
-                                  "bg-secondary text-muted-foreground"
-                                }`}>
-                                  {i + 1}
-                                </div>
-                                <div className="flex-1">
-                                  <div className="flex justify-between items-center mb-1">
-                                    <span className="font-bold text-sm">{m.name}</span>
-                                    <span className="text-[10px] font-black text-accent uppercase">{m.count} {t("messages")}</span>
-                                  </div>
-                                  <div className="h-1 w-full bg-secondary/50 rounded-full overflow-hidden">
-                                    <div 
-                                      className="h-full bg-accent transition-all duration-1000 ease-out" 
-                                      style={{ width: `${(m.count / maxCount) * 100}%` }}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ));
+                           const maxCount = Math.max(...data.leaderboards.moderators.map((m: any) => m.count), 1);
+                           return data.leaderboards.moderators.slice(0, 5).map((m: any, i: number) => (
+                             <div key={i} className="flex items-center justify-between group">
+                               <div className="flex items-center gap-2">
+                                 <span className="text-[10px] font-medium text-muted-foreground/60 w-3">{i + 1}.</span>
+                                 <span className="font-bold text-xs">{m.name}</span>
+                               </div>
+                               <span className="text-[10px] text-accent/70 font-medium">{m.count} <span className="text-[8px] uppercase tracking-tighter opacity-50">{t("messages")}</span></span>
+                             </div>
+                           ));
                         })()}
                       </div>
                     </div>
-                    <div className="bg-card border border-border rounded-2xl p-8 sketchbook-paper">
-                      <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                        <span className="text-accent">◈</span> {t("topChatters")}
+                    <div className="bg-card border border-border rounded-xl p-5">
+                      <h2 className="text-sm font-bold mb-4 text-muted-foreground uppercase tracking-widest">
+                        {t("topChatters")}
                       </h2>
-                      <div className="space-y-4">
+                      <div className="space-y-2.5">
                         {(() => {
-                          const maxCount = Math.max(...data.leaderboards.community_users.map((u: any) => u.count), 1);
-                          return data.leaderboards.community_users.slice(0, 5).map((u: any, i: number) => (
-                            <div key={i} className="group transition-all hover:bg-secondary/20 p-2 -m-2 rounded-xl">
-                              <div className="flex items-center gap-4 mb-1">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow-sm ${
-                                  i === 0 ? "bg-accent/20 text-accent ring-2 ring-accent/30" : "bg-secondary text-muted-foreground ring-1 ring-border"
-                                }`}>
-                                  #{i + 1}
-                                </div>
-                                <div className="flex-1">
-                                  <div className="flex justify-between items-center mb-1">
-                                    <span className="font-bold text-sm line-clamp-1">{u.name}</span>
-                                    <span className="text-[10px] font-black text-accent uppercase">{u.count} {t("messages")}</span>
-                                  </div>
-                                  <div className="h-1 w-full bg-secondary/50 rounded-full overflow-hidden">
-                                    <div 
-                                      className="h-full bg-accent/60 group-hover:bg-accent transition-all duration-1000 ease-out" 
-                                      style={{ width: `${(u.count / maxCount) * 100}%` }}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ));
+                           const maxCount = Math.max(...data.leaderboards.community_users.map((u: any) => u.count), 1);
+                           return data.leaderboards.community_users.slice(0, 5).map((u: any, i: number) => (
+                             <div key={i} className="flex items-center justify-between group">
+                               <div className="flex items-center gap-2">
+                                 <span className="text-[10px] font-medium text-muted-foreground/60 w-3">{i + 1}.</span>
+                                 <span className="font-bold text-xs truncate max-w-[120px]">{u.name}</span>
+                               </div>
+                               <span className="text-[10px] text-accent/70 font-medium">{u.count} <span className="text-[8px] uppercase tracking-tighter opacity-50">{t("messages")}</span></span>
+                             </div>
+                           ));
                         })()}
                       </div>
                     </div>
