@@ -23,7 +23,7 @@ interface DashboardData {
 }
 
 export default function Dashboard() {
-  const [platform, setPlatform] = useState<"telegram" | "discord" | "x" | "weekly">("discord")
+  const [platform, setPlatform] = useState<"telegram" | "discord" | "x" | "weekly">("weekly")
   const [xSection, setXSection] = useState<"SoSoValue" | "Sodex" | "SSI Index">("SoSoValue")
   const [discordSection, setDiscordSection] = useState<"retail" | "trading" | "tickets" | "dev">("retail")
   const [xData, setXData] = useState<any>(null)
@@ -1031,7 +1031,11 @@ export default function Dashboard() {
                               key={section}
                               onClick={() => setDiscordSection(section)}
                               className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-sans font-semibold transition-all duration-300 ${discordSection === section
-                                ? "bg-card text-accent shadow-sm ring-1 ring-border/50 scale-[1.05]"
+                                ? `bg-card shadow-sm ring-1 ring-border/50 scale-[1.05] ${section === "retail" ? "text-emerald-500" :
+                                  section === "trading" ? "text-amber-500" :
+                                    section === "tickets" ? "text-blue-500" :
+                                      "text-purple-500"
+                                }`
                                 : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
                                 }`}
                             >
@@ -1509,7 +1513,11 @@ export default function Dashboard() {
                             key={section}
                             onClick={() => setDiscordSection(section)}
                             className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-sans font-semibold transition-all duration-300 ${discordSection === section
-                              ? "bg-card text-accent shadow-sm ring-1 ring-border/50 scale-[1.05]"
+                              ? `bg-card shadow-sm ring-1 ring-border/50 scale-[1.05] ${section === "retail" ? "text-emerald-500" :
+                                section === "trading" ? "text-amber-500" :
+                                  section === "tickets" ? "text-blue-500" :
+                                    "text-purple-500"
+                              }`
                               : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
                               }`}
                           >

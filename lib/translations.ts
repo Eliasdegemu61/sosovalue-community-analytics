@@ -13,7 +13,7 @@ export const translations = {
         telegram: "Telegram",
         discord: "Discord",
         x: "X",
-        weeklyReport: "Weekly Report",
+        weeklyReport: "7D Report/Suggestion",
 
         // Community selector
         sosovalue: "SoSoValue",
@@ -93,7 +93,7 @@ export const translations = {
         telegram: "Telegram",
         discord: "Discord",
         x: "X",
-        weeklyReport: "周报",
+        weeklyReport: "7D 报告/建议",
 
         // Community selector
         sosovalue: "SoSoValue",
@@ -173,7 +173,7 @@ export const translations = {
         telegram: "Telegram",
         discord: "Discord",
         x: "X",
-        weeklyReport: "週報",
+        weeklyReport: "7D レポート/提案",
 
         // Community selector
         sosovalue: "SoSoValue",
