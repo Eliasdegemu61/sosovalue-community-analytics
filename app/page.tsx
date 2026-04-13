@@ -466,10 +466,12 @@ export default function Dashboard() {
                     { label: t("totalMessages"), val: discordData.vitals?.total_messages, prev: previousDayDiscordData?.vitals?.total_messages },
                     { label: t("activeUsers"), val: discordData.vitals?.active_users, prev: previousDayDiscordData?.vitals?.active_users }
                   ].map((v, i) => (
-                    <div key={i} className="bg-card border border-border rounded-xl p-6 flex-1 min-w-[200px]">
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold mb-1">{v.label}</p>
-                      <div className="text-2xl font-bold text-accent">{v.val?.toLocaleString() || 0}</div>
-                      <ComparisonBadge current={v.val || 0} previous={v.prev || 0} />
+                    <div key={i} className="bg-card border border-border rounded-xl p-4 min-w-[150px] shadow-sm">
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold mb-0.5">{v.label}</p>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-xl font-bold text-accent">{v.val?.toLocaleString() || 0}</span>
+                        <ComparisonBadge current={v.val || 0} previous={v.prev || 0} />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -487,6 +489,20 @@ export default function Dashboard() {
                   </div>
                   <p className="text-sm sm:text-base leading-relaxed text-foreground opacity-90">{discordData.reports?.[discordSection]?.summary || t("noSummary")}</p>
                 </div>
+
+                {discordData.reports?.[discordSection]?.questions?.length > 0 && (
+                  <div className="bg-card border border-border rounded-2xl p-8 sm:p-10 sketchbook-paper">
+                    <h2 className="text-xl font-bold mb-6">{t("topQuestions")} - {t(discordSection as any)}</h2>
+                    <ol className="space-y-4">
+                      {discordData.reports[discordSection].questions.map((question: string, i: number) => (
+                        <li key={i} className="text-sm flex gap-3">
+                          <span className="font-bold text-accent min-w-[1rem]">{i + 1}.</span>
+                          <span className="opacity-90">{question}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
 
                 {discordData.hourly_activity && (
                   <div className="bg-card rounded-2xl p-6 sm:p-10 sketchbook-paper">
@@ -519,10 +535,12 @@ export default function Dashboard() {
                     { label: t("totalMessages"), val: data.totals?.messages, prev: previousDayData?.totals?.messages },
                     { label: t("activeUsers"), val: data.totals?.users, prev: previousDayData?.totals?.users }
                   ].map((v, i) => (
-                    <div key={i} className="bg-card border border-border rounded-xl p-6 flex-1 min-w-[200px]">
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold mb-1">{v.label}</p>
-                      <div className="text-2xl font-bold text-accent">{v.val?.toLocaleString() || 0}</div>
-                      <ComparisonBadge current={v.val || 0} previous={v.prev || 0} />
+                    <div key={i} className="bg-card border border-border rounded-xl p-4 min-w-[150px] shadow-sm">
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold mb-0.5">{v.label}</p>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-xl font-bold text-accent">{v.val?.toLocaleString() || 0}</span>
+                        <ComparisonBadge current={v.val || 0} previous={v.prev || 0} />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -532,15 +550,34 @@ export default function Dashboard() {
                     <h2 className="text-xl font-bold mb-6">{t("summary")}</h2>
                     <p className="text-sm leading-relaxed opacity-90">{parseAnalysis(data.ai_analysis).summary}</p>
                   </div>
-                  <div className="bg-card border border-border rounded-2xl p-8 sketchbook-paper">
-                    <h2 className="text-xl font-bold mb-6">{t("topQuestions")}</h2>
-                    <ol className="space-y-4">
-                      {parseAnalysis(data.ai_analysis).questions.slice(0, 3).map((q, i) => (
-                        <li key={i} className="text-sm flex gap-3"><span className="font-bold text-accent">{i + 1}.</span> {q}</li>
-                      ))}
-                    </ol>
-                  </div>
+                  {parseAnalysis(data.ai_analysis).questions.length > 0 && (
+                    <div className="bg-card border border-border rounded-2xl p-8 sketchbook-paper">
+                      <h2 className="text-xl font-bold mb-6">{t("topQuestions")}</h2>
+                      <ol className="space-y-4">
+                        {parseAnalysis(data.ai_analysis).questions.slice(0, 5).map((q, i) => (
+                          <li key={i} className="text-sm flex gap-3">
+                            <span className="font-bold text-accent min-w-[1rem]">{i + 1}.</span>
+                            <span className="opacity-90">{q}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  )}
                 </div>
+
+                {data.sections && data.sections.length > 0 && (
+                  <div className="bg-card border border-border rounded-2xl p-8 sketchbook-paper">
+                    <h2 className="text-xl font-bold mb-6">{t("languageSections")}</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {data.sections.map((section, i) => (
+                        <div key={i} className="bg-secondary/30 rounded-xl p-4 border border-border/50">
+                          <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">{section.name}</p>
+                          <p className="text-lg font-bold text-accent">{section.msgs.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground uppercase ml-1">{t("messages")}</span></p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="bg-card rounded-2xl p-6 sm:p-10 sketchbook-paper">
                   <div className="flex justify-between items-center mb-8">
@@ -562,32 +599,75 @@ export default function Dashboard() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {data.leaderboards?.moderators?.length > 0 && (
                     <div className="bg-card border border-border rounded-2xl p-8 sketchbook-paper">
-                      <h2 className="text-xl font-bold mb-6">{t("topMods")}</h2>
+                      <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                        <span className="text-accent">✦</span> {t("topMods")}
+                      </h2>
                       <div className="space-y-4">
-                        {data.leaderboards.moderators.slice(0, 5).map((m: any, i: number) => (
-                          <div key={i} className="flex justify-between text-sm">
-                            <span className="font-medium">{i + 1}. {m.name}</span>
-                            <span className="text-accent font-bold">{m.count} {t("messages")}</span>
-                          </div>
-                        ))}
+                        {(() => {
+                          const maxCount = Math.max(...data.leaderboards.moderators.map((m: any) => m.count), 1);
+                          return data.leaderboards.moderators.slice(0, 5).map((m: any, i: number) => (
+                            <div key={i} className="group transition-all hover:bg-secondary/20 p-2 -m-2 rounded-xl">
+                              <div className="flex items-center gap-4 mb-1">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ring-2 ring-background shadow-sm ${
+                                  i === 0 ? "bg-amber-400 text-white" : 
+                                  i === 1 ? "bg-slate-300 text-slate-700" : 
+                                  i === 2 ? "bg-orange-400 text-white" : 
+                                  "bg-secondary text-muted-foreground"
+                                }`}>
+                                  {i + 1}
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex justify-between items-center mb-1">
+                                    <span className="font-bold text-sm">{m.name}</span>
+                                    <span className="text-[10px] font-black text-accent uppercase">{m.count} {t("messages")}</span>
+                                  </div>
+                                  <div className="h-1 w-full bg-secondary/50 rounded-full overflow-hidden">
+                                    <div 
+                                      className="h-full bg-accent transition-all duration-1000 ease-out" 
+                                      style={{ width: `${(m.count / maxCount) * 100}%` }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ));
+                        })()}
                       </div>
                     </div>
-                  )}
-                  {data.leaderboards?.community_users?.length > 0 && (
                     <div className="bg-card border border-border rounded-2xl p-8 sketchbook-paper">
-                      <h2 className="text-xl font-bold mb-6">{t("topChatters")}</h2>
+                      <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                        <span className="text-accent">◈</span> {t("topChatters")}
+                      </h2>
                       <div className="space-y-4">
-                        {data.leaderboards.community_users.slice(0, 5).map((u: any, i: number) => (
-                          <div key={i} className="flex justify-between text-sm">
-                            <span className="font-medium">{i + 1}. {u.name}</span>
-                            <span className="text-accent font-bold">{u.count} {t("messages")}</span>
-                          </div>
-                        ))}
+                        {(() => {
+                          const maxCount = Math.max(...data.leaderboards.community_users.map((u: any) => u.count), 1);
+                          return data.leaderboards.community_users.slice(0, 5).map((u: any, i: number) => (
+                            <div key={i} className="group transition-all hover:bg-secondary/20 p-2 -m-2 rounded-xl">
+                              <div className="flex items-center gap-4 mb-1">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow-sm ${
+                                  i === 0 ? "bg-accent/20 text-accent ring-2 ring-accent/30" : "bg-secondary text-muted-foreground ring-1 ring-border"
+                                }`}>
+                                  #{i + 1}
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex justify-between items-center mb-1">
+                                    <span className="font-bold text-sm line-clamp-1">{u.name}</span>
+                                    <span className="text-[10px] font-black text-accent uppercase">{u.count} {t("messages")}</span>
+                                  </div>
+                                  <div className="h-1 w-full bg-secondary/50 rounded-full overflow-hidden">
+                                    <div 
+                                      className="h-full bg-accent/60 group-hover:bg-accent transition-all duration-1000 ease-out" 
+                                      style={{ width: `${(u.count / maxCount) * 100}%` }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ));
+                        })()}
                       </div>
                     </div>
-                  )}
                 </div>
               </div>
             )}
@@ -604,8 +684,63 @@ export default function Dashboard() {
                       ))}
                     </div>
                   </div>
-                  <p className="text-sm leading-relaxed opacity-90">{xData.summary?.[xSection.toLowerCase().replace(" ", "")] || t("noSummary")}</p>
+                  <p className="text-sm leading-relaxed opacity-90">{xData.summary?.[xSection === "SSI Index" ? "ssi" : xSection.toLowerCase()] || t("noSummary")}</p>
                 </div>
+                {(() => {
+                  const sectionKey = xSection === "SSI Index" ? "ssi" : xSection.toLowerCase()
+                  const questions = xData.top_questions?.[sectionKey]
+                  const postsKey = Object.keys(xData).find(k => k.toLowerCase().includes("top post_links"))
+                  const posts = postsKey ? xData[postsKey] : []
+
+                  return (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                      {questions && questions.length > 0 && (
+                        <div className="bg-card border border-border rounded-2xl p-8 sketchbook-paper h-full">
+                          <h2 className="text-xl font-bold mb-6">{t("topQuestions")} - {xSection}</h2>
+                          <ol className="space-y-4">
+                            {questions.map((question: string, i: number) => (
+                              <li key={i} className="text-sm flex gap-3">
+                                <span className="font-bold text-accent min-w-[1rem]">{i + 1}.</span>
+                                <span className="opacity-90">{question}</span>
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
+                      )}
+
+                      {posts && posts.length > 0 && (
+                        <div className="bg-card border border-border rounded-2xl p-8 sketchbook-paper h-full">
+                          <h2 className="text-xl font-bold mb-6">{t("mostEngagedPosts")}</h2>
+                          <div className="space-y-6">
+                            {posts.map((postStr: string, i: number) => {
+                              const urlMatch = postStr.match(/https?:\/\/\S+/);
+                              const url = urlMatch ? urlMatch[0] : "";
+                              const statsMatch = postStr.match(/\((\d+)\s+likes?:\s*(.+)\)/i);
+                              const likes = statsMatch ? statsMatch[1] : "0";
+                              const description = statsMatch ? statsMatch[2] : postStr.replace(url, "").trim();
+
+                              return (
+                                <div key={i} className="bg-secondary/20 rounded-xl p-6 border border-border/50 flex flex-col gap-4 transition-all hover:bg-secondary/40">
+                                  <p className="text-sm italic leading-relaxed opacity-90">"{description}"</p>
+                                  <div className="flex justify-between items-center mt-auto">
+                                    <div className="flex gap-4">
+                                      <span className="text-xs font-bold text-accent">{parseInt(likes).toLocaleString()} Likes</span>
+                                    </div>
+                                    {url && (
+                                      <a href={url} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-accent transition-colors underline decoration-dotted underline-offset-4">
+                                        {t("viewPostOnX")}
+                                      </a>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
               </div>
             )}
 
@@ -693,6 +828,31 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <p className="text-sm sm:text-base leading-relaxed opacity-90">{weeklyReportData.reports?.[discordSection]?.summary || t("noSummary")}</p>
+                  </div>
+                )}
+
+                {/* Top Questions Card */}
+                {weeklyReportData?.reports?.[discordSection]?.questions?.length > 0 && (
+                  <div className="bg-card border border-border rounded-2xl p-6 sm:p-10 sketchbook-paper hover:shadow-xl transition-all duration-300">
+                    <div className="flex flex-col gap-1 mb-6">
+                      <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
+                        <div className="w-2.5 h-2.5 rounded-full bg-accent" />
+                        {t("topQuestions")} - {t(discordSection as any)}
+                      </h2>
+                      <p className="text-xs text-muted-foreground font-sans font-medium tracking-wide opacity-70">
+                        {(() => {
+                          const start = new Date(date); start.setDate(start.getDate() - 6)
+                          return `${start.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${date.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
+                        })()}
+                      </p>
+                    </div>
+                    <ol className="space-y-4">
+                      {weeklyReportData.reports[discordSection].questions.map((question: string, i: number) => (
+                        <li key={i} className="text-sm flex gap-4 text-foreground/90 font-serif leading-relaxed">
+                          <span className="font-bold text-accent min-w-[1.5rem]">{i + 1}.</span> {question}
+                        </li>
+                      ))}
+                    </ol>
                   </div>
                 )}
               </div>

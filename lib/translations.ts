@@ -31,7 +31,7 @@ export const translations = {
         topQuestions: "Top Questions",
         summary: "Summary",
         category: "Category",
-        languageSections: "Language Sections",
+        languageSections: "Top Sections",
         topMods: "Top Mods",
         topChatters: "Top Chatters",
         mostEngagedPosts: "Most Engaged Posts",
@@ -58,7 +58,7 @@ export const translations = {
         // Misc
         messages: "messages",
         close: "Close",
-        teamSuggestions: "Team Suggestions based on 7 days chat logs",
+        teamSuggestions: "Team Signal",
         actionPoint: "Action Point",
         actionType: "Action Type",
         resolve: "Resolve",
