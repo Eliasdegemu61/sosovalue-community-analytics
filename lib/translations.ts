@@ -4,8 +4,8 @@ export type Lang = "en" | "zh" | "ja"
 export const translations = {
     en: {
         // Header
-        communityAnalytics: "Community Analytics",
-        aiNotice: "contains AI generated insights based on limited context ,  minor terminology or phrasing inaccuracies may occur.",
+        communityAnalytics: "SoSoValue Community",
+        aiNotice: "“Insights are AI generated from limited context and logs; minor terminology or phrasing inaccuracies may occur.”",
         minimalActivityNotice: "This group shows minimal activity; sentiment insights may not be reliable and are not included",
         usdNote: "all USD calculations use current prices",
 
@@ -77,8 +77,8 @@ export const translations = {
     },
     zh: {
         // Header
-        communityAnalytics: "社区分析",
-        aiNotice: "包含基于有限上下文的 AI 生成见解，可能会出现少量术语或表述不准确的情况。",
+        communityAnalytics: "SoSoValue 社区",
+        aiNotice: "“见解由 AI 根据有限的上下文和日志生成；可能会出现少量术语或表述不准确的情况。”",
         minimalActivityNotice: "该群组活跃度较低；情感见解可能不可靠，且未包含在内",
         usdNote: "所有USD计算均使用当前价格",
 
@@ -150,8 +150,8 @@ export const translations = {
     },
     ja: {
         // Header
-        communityAnalytics: "コミュニティ分析",
-        aiNotice: "限られた文脈に基づく AI 生成のインサイトが含まれており、用語や表現に若干の不正確さが生じる場合があります。",
+        communityAnalytics: "SoSoValue コミュニティ",
+        aiNotice: "“インサイトは、限定されたコンテキストとログから AI によって生成されています。用語や表現に若干の不正確さが生じる場合があります。”",
         minimalActivityNotice: "このグループの活動は最小限です。センチメント分析は信頼性が低い可能性があるため、含まれていません",
         usdNote: "すべてのUSD計算は現在の価格を使用しています",
 

@@ -736,7 +736,7 @@ export default function Dashboard() {
             <img src="https://sosovalue.com/img/192x192.png" alt="SoSoValue" className="w-12 sm:w-16 h-12 sm:h-16 rounded-lg flex-shrink-0" />
             <div className="flex flex-col">
               <h1 className="text-xl sm:text-4xl lg:text-6xl font-bold text-foreground tracking-tight">{t("communityAnalytics")}</h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 opacity-80 italic font-sans leading-tight">
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-2 opacity-80 italic font-sans leading-tight max-w-2xl">
                 {t("aiNotice")}
               </p>
             </div>
@@ -1011,8 +1011,8 @@ export default function Dashboard() {
                             <button
                               key={section}
                               onClick={() => setDiscordSection(section)}
-                              className={`px-3 py-1 rounded-lg text-[10px] sm:text-xs font-sans font-semibold transition-all duration-300 ${discordSection === section
-                                ? "bg-card text-accent shadow-sm ring-1 ring-border/50 scale-[1.02]"
+                              className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-sans font-semibold transition-all duration-300 ${discordSection === section
+                                ? "bg-card text-accent shadow-sm ring-1 ring-border/50 scale-[1.05]"
                                 : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
                                 }`}
                             >
@@ -1424,8 +1424,8 @@ export default function Dashboard() {
                         <button
                           key={section}
                           onClick={() => setDiscordSection(section)}
-                          className={`px-3 py-1 rounded-lg text-[10px] sm:text-xs font-sans font-semibold transition-all duration-300 ${discordSection === section
-                            ? "bg-card text-accent shadow-sm ring-1 ring-border/50 scale-[1.02]"
+                          className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-sans font-semibold transition-all duration-300 ${discordSection === section
+                            ? "bg-card text-accent shadow-sm ring-1 ring-border/50 scale-[1.05]"
                             : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
                             }`}
                         >
