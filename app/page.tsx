@@ -377,19 +377,19 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background p-6 sm:p-10 font-serif transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8 sm:mb-16 flex justify-between items-start gap-4">
-          <div className="flex items-center gap-3 flex-wrap">
-            <img src="https://sosovalue.com/img/192x192.png" alt="SoSoValue" className="w-12 sm:w-16 h-12 sm:h-16 rounded-lg" />
-            <div className="flex flex-col">
-              <div className="flex items-center gap-3">
-                <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold text-foreground tracking-tight">{t("communityAnalytics")}</h1>
-                <span className="px-2 py-0.5 mt-2 text-[10px] font-sans font-bold bg-accent/10 text-accent border border-accent/20 rounded-full">v2.0</span>
+        <div className="mb-8 sm:mb-12 flex justify-between items-center gap-4">
+          <div className="flex items-center gap-4 min-w-0">
+            <img src="https://sosovalue.com/img/192x192.png" alt="SoSoValue" className="w-10 sm:w-14 h-10 sm:h-14 rounded-xl shadow-lg flex-shrink-0" />
+            <div className="flex flex-col min-w-0">
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg sm:text-3xl font-bold text-foreground tracking-tight truncate py-1">{t("communityAnalytics")}</h1>
+                <span className="px-2 py-0.5 text-[8px] sm:text-[10px] font-sans font-bold bg-accent/10 text-accent border border-accent/20 rounded-full whitespace-nowrap">v2.0</span>
               </div>
-              <p className="text-[10px] sm:text-xs text-muted-foreground mt-2 opacity-80 italic font-sans leading-tight max-w-2xl">{t("aiNotice")}</p>
+              <p className="hidden sm:block text-[10px] sm:text-xs text-muted-foreground opacity-70 italic font-sans leading-tight max-w-xl truncate sm:whitespace-normal">{t("aiNotice")}</p>
             </div>
           </div>
-          <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="p-2 sm:p-3 rounded-lg hover:bg-secondary transition-all duration-200">
-            {resolvedTheme === "dark" ? <Sun className="w-5 h-5 sm:w-6 sm:h-6" /> : <Moon className="w-5 h-5 sm:w-6 sm:h-6" />}
+          <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="p-2 sm:p-3 rounded-xl bg-secondary/30 hover:bg-secondary/60 transition-all duration-300 border border-border/50">
+            {resolvedTheme === "dark" ? <Sun className="w-4 h-4 sm:w-5 sm:h-5" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5" />}
           </button>
         </div>
 
