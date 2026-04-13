@@ -32,6 +32,7 @@ export const translations = {
         // Section headings
         topQuestions: "Top Questions",
         summary: "Summary",
+        category: "Category",
         languageSections: "Language Sections",
         topMods: "Top Mods",
         topChatters: "Top Chatters",
@@ -40,7 +41,8 @@ export const translations = {
 
         // Activity chart headings
         hourlyActivity: "Hourly Activity",
-        weeklyAvgHourlyActivity: "Weekly average Hourly Activity",
+        averageMessages: "Average Messages",
+        weeklyAvgHourlyActivity: "Weekly Average Hourly Activity",
         allTimeActivityByHour: "All Time Activity By Hour",
         activityByHour: "Activity By Hour",
         weeklyPeakHours: "Weekly Peak Hours (Past 7 Days)",
@@ -61,6 +63,11 @@ export const translations = {
         // Misc
         messages: "messages",
         close: "Close",
+        teamSuggestions: "Team Suggestions",
+        actionPoint: "Action Point",
+        actionType: "Action Type",
+        resolve: "Resolve",
+        communicate: "Communicate",
         discordReports: "Discord Reports",
         retail: "Retail",
         trading: "Trading",
@@ -105,6 +112,7 @@ export const translations = {
         // Section headings
         topQuestions: "热门问题",
         summary: "摘要",
+        category: "类别",
         languageSections: "语言频道",
         topMods: "管理员排行",
         topChatters: "活跃用户排行",
@@ -113,6 +121,7 @@ export const translations = {
 
         // Activity chart headings
         hourlyActivity: "每小时活动",
+        averageMessages: "平均消息数",
         weeklyAvgHourlyActivity: "每周平均每小时活动",
         allTimeActivityByHour: "历史每小时活动",
         activityByHour: "按小时统计活动",
@@ -134,6 +143,11 @@ export const translations = {
         // Misc
         messages: "条消息",
         close: "关闭",
+        teamSuggestions: "团队建议",
+        actionPoint: "行动点",
+        actionType: "行动类型",
+        resolve: "解决",
+        communicate: "沟通",
         discordReports: "Discord报告",
         retail: "散户",
         trading: "交易",
@@ -178,6 +192,7 @@ export const translations = {
         // Section headings
         topQuestions: "よくある質問",
         summary: "要約",
+        category: "カテゴリー",
         languageSections: "言語セクション",
         topMods: "トップモデレーター",
         topChatters: "トップチャッター",
@@ -186,6 +201,7 @@ export const translations = {
 
         // Activity chart headings
         hourlyActivity: "時間別活動",
+        averageMessages: "平均メッセージ数",
         weeklyAvgHourlyActivity: "週平均時間別活動",
         allTimeActivityByHour: "全期間時間別活動",
         activityByHour: "時間別活動状況",
@@ -207,6 +223,11 @@ export const translations = {
         // Misc
         messages: "メッセージ",
         close: "閉じる",
+        teamSuggestions: "チームへの提案",
+        actionPoint: "アクションポイント",
+        actionType: "アクションタイプ",
+        resolve: "解決する",
+        communicate: "伝える",
         discordReports: "Discordレポート",
         retail: "リテール",
         trading: "取引",

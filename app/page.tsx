@@ -81,6 +81,7 @@ export default function Dashboard() {
   const [translatedDiscordData, setTranslatedDiscordData] = useState<any>(null)
   const [translatedXData, setTranslatedXData] = useState<any>(null)
   const [weeklyReportData, setWeeklyReportData] = useState<any>(null)
+  const [weeklySuggestions, setWeeklySuggestions] = useState<any>(null)
   const sessionCache = useRef<Record<string, any>>({})
 
 
@@ -353,6 +354,7 @@ export default function Dashboard() {
       })
 
       const results = await Promise.all(fetchPromises)
+      const validResultsCount = results.filter((r) => r !== null).length
 
       const weeklyHours: Record<string, number> = {}
       results.forEach((json) => {
@@ -364,34 +366,16 @@ export default function Dashboard() {
         }
       })
 
-      const chartData = [
-        "12 AM",
-        "01 AM",
-        "02 AM",
-        "03 AM",
-        "04 AM",
-        "05 AM",
-        "06 AM",
-        "07 AM",
-        "08 AM",
-        "09 AM",
-        "10 AM",
-        "11 AM",
-        "12 PM",
-        "01 PM",
-        "02 PM",
-        "03 PM",
-        "04 PM",
-        "05 PM",
-        "06 PM",
-        "07 PM",
-        "08 PM",
-        "09 PM",
-        "10 PM",
-        "11 PM",
-      ].map((hour) => ({
+      const hourLabels = [
+        "12 AM", "01 AM", "02 AM", "03 AM", "04 AM", "05 AM",
+        "06 AM", "07 AM", "08 AM", "09 AM", "10 AM", "11 AM",
+        "12 PM", "01 PM", "02 PM", "03 PM", "04 PM", "05 PM",
+        "06 PM", "07 PM", "08 PM", "09 PM", "10 PM", "11 PM",
+      ]
+
+      const chartData = hourLabels.map((hour) => ({
         hour,
-        count: weeklyHours[hour] || 0,
+        count: validResultsCount > 0 ? Math.round((weeklyHours[hour] || 0) / validResultsCount) : 0,
       }))
 
       setWeeklyData(chartData.length > 0 ? chartData : [])
@@ -416,6 +400,7 @@ export default function Dashboard() {
       })
 
       const results = await Promise.all(fetchPromises)
+      const validResultsCount = results.filter((r) => r !== null).length
 
       const weeklyHours: Record<string, number> = {}
       results.forEach((json) => {
@@ -435,7 +420,7 @@ export default function Dashboard() {
 
       const chartData = hourLabels.map((hour) => ({
         hour,
-        count: weeklyHours[hour] || 0,
+        count: validResultsCount > 0 ? Math.round((weeklyHours[hour] || 0) / validResultsCount) : 0,
       }))
 
       setWeeklyDiscordData(chartData.length > 0 ? chartData : [])
@@ -547,6 +532,36 @@ export default function Dashboard() {
     }
   }
 
+  const fetchWeeklySuggestions = async () => {
+    try {
+      const monthShort = date.toLocaleString("en-US", { month: "short" }).toLowerCase()
+      const day = String(date.getDate())
+      const fileName = `segg${monthShort}${day}.json`
+      const url = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/refs/heads/main/weekly_suggestions/${fileName}`
+
+      console.log("[v0] Weekly suggestions fetch attempting:", url)
+      const json = await fetchWithCache(url, true)
+      console.log("[v0] Weekly suggestions data loaded:", json)
+      setWeeklySuggestions(json)
+    } catch (error) {
+      console.log("[v0] Weekly suggestions: Current date not found, trying previous day")
+      const previousDay = new Date(date)
+      previousDay.setDate(previousDay.getDate() - 1)
+      const prevMonthShort = previousDay.toLocaleString("en-US", { month: "short" }).toLowerCase()
+      const prevDay = String(previousDay.getDate())
+      const prevFileName = `segg${prevMonthShort}${prevDay}.json`
+      const prevUrl = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/refs/heads/main/weekly_suggestions/${prevFileName}`
+
+      try {
+        const json = await fetchWithCache(prevUrl, true)
+        setWeeklySuggestions(json)
+      } catch (fallbackError) {
+        console.error("[v0] Failed to fetch weekly suggestions:", fallbackError)
+        setWeeklySuggestions(null)
+      }
+    }
+  }
+
   useEffect(() => {
     if (platform === "telegram") {
       fetchData()
@@ -566,7 +581,11 @@ export default function Dashboard() {
       return () => clearInterval(interval)
     } else if (platform === "weekly") {
       fetchWeeklyReport()
-      const interval = setInterval(fetchWeeklyReport, 3600000)
+      fetchWeeklySuggestions()
+      const interval = setInterval(() => {
+        fetchWeeklyReport()
+        fetchWeeklySuggestions()
+      }, 3600000)
       return () => clearInterval(interval)
     }
   }, [platform, community, date])
@@ -1045,7 +1064,7 @@ export default function Dashboard() {
                   <div className="bg-card rounded-xl p-8 sm:p-10 hover:shadow-lg transition-all duration-200 sketchbook-paper">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
                       <h2 className="text-2xl font-bold text-foreground capitalize">
-                        {timeframe === "today" ? t("hourlyActivity") : timeframe === "weekly" ? t("weeklyAvgHourlyActivity") : t("allTimeActivityByHour")}
+                        {timeframe === "today" ? t("hourlyActivity") : t("weeklyAvgHourlyActivity")}
                       </h2>
                       <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:gap-4">
                         <span className="text-[10px] text-muted-foreground font-sans uppercase tracking-[0.2em] opacity-70">{t("allInUTC8")} </span>
@@ -1093,6 +1112,8 @@ export default function Dashboard() {
                         />
                         <YAxis axisLine={false} tickLine={false} tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
                         <Tooltip
+                          labelClassName="font-sans font-bold text-foreground"
+                          formatter={(value: any) => [value, timeframe === "weekly" ? t("averageMessages") : t("messages")]}
                           contentStyle={{
                             backgroundColor: "var(--card)",
                             border: "1px solid var(--border)",
@@ -1170,7 +1191,7 @@ export default function Dashboard() {
               <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
                   <h2 className="text-2xl font-bold text-foreground capitalize">
-                    {timeframe === "today" ? t("activityByHour") : timeframe === "weekly" ? t("weeklyPeakHours") : t("allTimeActivityByHour")}
+                    {timeframe === "today" ? t("activityByHour") : t("weeklyAvgHourlyActivity")}
                   </h2>
                   <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:gap-4">
                     <span className="text-[10px] text-muted-foreground font-sans uppercase tracking-[0.2em] opacity-70">{t("allInUTC8")} </span>
@@ -1218,6 +1239,8 @@ export default function Dashboard() {
                     />
                     <YAxis axisLine={false} tickLine={false} tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
                     <Tooltip
+                      labelClassName="font-sans font-bold text-foreground"
+                      formatter={(value: any) => [value, timeframe === "weekly" ? t("averageMessages") : t("messages")]}
                       contentStyle={{
                         backgroundColor: "var(--card)",
                         border: "1px solid var(--border)",
@@ -1404,12 +1427,15 @@ export default function Dashboard() {
               </div>
             ) : null}
 
-            {platform === "weekly" && weeklyReportData && (
+            {platform === "weekly" && (
               <div className="space-y-6">
-                <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                    <div className="flex flex-col gap-1">
-                      <h2 className="text-xl font-bold text-foreground">{t("summary")} - {t(discordSection as keyof typeof translations.en)}</h2>
+                {weeklySuggestions && weeklySuggestions.team_suggestions && weeklySuggestions.team_suggestions.length > 0 && (
+                  <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
+                    <div className="flex flex-col gap-1 mb-8">
+                      <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+                        {t("teamSuggestions")}
+                      </h2>
                       <p className="text-xs text-muted-foreground font-sans font-medium">
                         {(() => {
                           const start = new Date(date)
@@ -1419,27 +1445,86 @@ export default function Dashboard() {
                         })()}
                       </p>
                     </div>
-                    <div className="flex bg-secondary/50 p-1 rounded-xl border border-border/50 backdrop-blur-sm">
-                      {(["retail", "trading", "tickets", "dev"] as const).map((section) => (
-                        <button
-                          key={section}
-                          onClick={() => setDiscordSection(section)}
-                          className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-sans font-semibold transition-all duration-300 ${discordSection === section
-                            ? "bg-card text-accent shadow-sm ring-1 ring-border/50 scale-[1.05]"
-                            : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
-                            }`}
-                        >
-                          {t(section as keyof typeof translations.en)}
-                        </button>
-                      ))}
+
+                    <div className="overflow-hidden rounded-xl border border-border/50">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-muted/50 border-bottom border-border/50">
+                            <th className="px-6 py-4 text-[10px] font-sans uppercase tracking-[0.2em] text-muted-foreground font-bold">{t("category")}</th>
+                            <th className="px-6 py-4 text-[10px] font-sans uppercase tracking-[0.2em] text-muted-foreground font-bold">{t("actionPoint")}</th>
+                            <th className="px-6 py-4 text-[10px] font-sans uppercase tracking-[0.2em] text-muted-foreground font-bold">{t("actionType")}</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border/30">
+                          {weeklySuggestions.team_suggestions.map((item: any, i: number) => (
+                            <tr key={i} className="group hover:bg-accent/5 transition-colors">
+                              <td className="px-6 py-4">
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${item.category === "dev" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300" :
+                                    item.category === "retail" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" :
+                                      item.category === "trading" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" :
+                                        "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                                  }`}>
+                                  {t(item.category as any) || item.category}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 text-sm text-foreground/90 font-serif italic max-w-md">
+                                {item.action_point}
+                              </td>
+                              <td className="px-6 py-4">
+                                <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${item.action_type === "resolve" ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"
+                                  }`}>
+                                  {item.action_type === "resolve" ? (
+                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                  ) : (
+                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                  )}
+                                  {t(item.action_type as any) || item.action_type}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
-                  <p className="text-sm text-foreground leading-relaxed">
-                    {weeklyReportData.reports?.[discordSection]?.summary || t("noSummary")}
-                  </p>
-                </div>
+                )}
 
-                {weeklyReportData.reports?.[discordSection]?.questions?.length > 0 && (
+                {weeklyReportData && (
+                  <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                      <div className="flex flex-col gap-1">
+                        <h2 className="text-xl font-bold text-foreground">{t("summary")} - {t(discordSection as keyof typeof translations.en)}</h2>
+                        <p className="text-xs text-muted-foreground font-sans font-medium">
+                          {(() => {
+                            const start = new Date(date)
+                            start.setDate(start.getDate() - 6)
+                            const format = (d: Date) => d.toLocaleDateString(lang === "en" ? "en-US" : lang === "zh" ? "zh-CN" : "ja-JP", { month: lang === "en" ? "long" : "short", day: "numeric" })
+                            return `${format(start)} - ${format(date)}`
+                          })()}
+                        </p>
+                      </div>
+                      <div className="flex bg-secondary/50 p-1 rounded-xl border border-border/50 backdrop-blur-sm">
+                        {(["retail", "trading", "tickets", "dev"] as const).map((section) => (
+                          <button
+                            key={section}
+                            onClick={() => setDiscordSection(section)}
+                            className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-sans font-semibold transition-all duration-300 ${discordSection === section
+                              ? "bg-card text-accent shadow-sm ring-1 ring-border/50 scale-[1.05]"
+                              : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
+                              }`}
+                          >
+                            {t(section as keyof typeof translations.en)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-sm text-foreground leading-relaxed">
+                      {weeklyReportData.reports?.[discordSection]?.summary || t("noSummary")}
+                    </p>
+                  </div>
+                )}
+
+                {weeklyReportData?.reports?.[discordSection]?.questions?.length > 0 && (
                   <div className="bg-card border border-border rounded-xl p-8 sm:p-10 hover:border-accent/30 transition-all duration-200 sketchbook-paper">
                     <div className="flex flex-col gap-1 mb-6">
                       <h2 className="text-xl font-bold text-foreground">{t("topQuestions")} - {t(discordSection as keyof typeof translations.en)}</h2>
