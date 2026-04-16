@@ -112,23 +112,28 @@ export default function Dashboard() {
         setLastUpdated(new Date())
         fetchPreviousDayData(community, date)
       } catch (e) {
-        const isTodayOrFuture = date.setHours(0, 0, 0, 0) >= new Date().setHours(0, 0, 0, 0)
-        if (isTodayOrFuture) {
-          const prev = new Date(date)
-          prev.setDate(prev.getDate() - 1)
-          const pm = prev.toLocaleString("en-US", { month: "short" }).toLowerCase()
-          const pd = String(prev.getDate())
-          const purl = `https://raw.githubusercontent.com/Eliasdegemu61/Json-data/main/${community}/${pm}${pd}_processed.json`
+        let found = false;
+        for (let i = 1; i <= 5; i++) {
+          const prev = new Date(date);
+          prev.setDate(prev.getDate() - i);
+          const pm = prev.toLocaleString("en-US", { month: "short" }).toLowerCase();
+          const pd = String(prev.getDate());
+          const purl = `https://raw.githubusercontent.com/Eliasdegemu61/Json-data/main/${community}/${pm}${pd}_processed.json`;
           try {
-            const json = await fetchWithCache(purl, true)
-            setData(json)
-            setError(`Showing data from ${prev.toDateString()} (today's data not available yet)`)
-            fetchPreviousDayData(community, prev)
-            return
+            const json = await fetchWithCache(purl, true);
+            setData(json);
+            const prevFormat = prev.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+            const currFormat = date.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+            setError(`Displaying ${prevFormat} data. ${currFormat} data is not available yet.`);
+            fetchPreviousDayData(community, prev);
+            found = true;
+            break;
           } catch (err) { }
         }
-        setError(t("noDataForDate"))
-        setData(null)
+        if (!found) {
+          setError(t("noDataForDate"));
+          setData(null);
+        }
       }
     } catch (err) {
       setError(t("failedToFetch"))
@@ -181,22 +186,28 @@ export default function Dashboard() {
         setLastUpdated(new Date())
         fetchPreviousDayDiscordData(date)
       } catch (e) {
-        if (date.setHours(0, 0, 0, 0) >= new Date().setHours(0, 0, 0, 0)) {
-          const prev = new Date(date)
-          prev.setDate(prev.getDate() - 1)
-          const pm = prev.toLocaleString("en-US", { month: "short" }).toLowerCase()
-          const pd = String(prev.getDate())
-          const purl = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/main/${pm}${pd}data.json`
+        let found = false;
+        for (let i = 1; i <= 5; i++) {
+          const prev = new Date(date);
+          prev.setDate(prev.getDate() - i);
+          const pm = prev.toLocaleString("en-US", { month: "short" }).toLowerCase();
+          const pd = String(prev.getDate());
+          const purl = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/main/${pm}${pd}data.json`;
           try {
-            const json = await fetchWithCache(purl, true)
-            setDiscordData(json)
-            setError(`Showing data from ${prev.toDateString()} (today's data not available yet)`)
-            fetchPreviousDayDiscordData(prev)
-            return
+            const json = await fetchWithCache(purl, true);
+            setDiscordData(json);
+            const prevFormat = prev.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+            const currFormat = date.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+            setError(`Displaying ${prevFormat} data. ${currFormat} data is not available yet.`);
+            fetchPreviousDayDiscordData(prev);
+            found = true;
+            break;
           } catch (err) { }
         }
-        setError(t("noDataForDate"))
-        setDiscordData(null)
+        if (!found) {
+          setError(t("noDataForDate"));
+          setDiscordData(null);
+        }
       }
     } catch (err) {
       setError(t("failedToFetchDiscord"))
@@ -272,22 +283,27 @@ export default function Dashboard() {
         setXData(json);
         setLastUpdated(new Date());
       } catch (e) {
-        const isTodayOrFuture = new Date(date).setHours(0, 0, 0, 0) >= new Date().setHours(0, 0, 0, 0);
-        if (isTodayOrFuture) {
+        let found = false;
+        for (let i = 1; i <= 5; i++) {
           const prev = new Date(date);
-          prev.setDate(prev.getDate() - 1);
+          prev.setDate(prev.getDate() - i);
           const pms = prev.toLocaleString("en-US", { month: "short" }).toLowerCase();
           const pdd = String(prev.getDate()).padStart(2, '0');
           const purl = `https://raw.githubusercontent.com/Eliasdegemu61/soso-x-analysis/main/${pms}${pdd}.json`;
           try {
             const json = await fetchWithCache(purl, true);
             setXData(json);
-            setError(`Showing data from ${prev.toDateString()} (today's data not available yet)`);
-            return;
+            const prevFormat = prev.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+            const currFormat = date.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+            setError(`Displaying ${prevFormat} data. ${currFormat} data is not available yet.`);
+            found = true;
+            break;
           } catch (err) { }
         }
-        setError("Failed to fetch X data");
-        setXData(null);
+        if (!found) {
+          setError("Failed to fetch X data");
+          setXData(null);
+        }
       }
     } catch (err) {
       setError("Failed to fetch X data");
@@ -306,18 +322,28 @@ export default function Dashboard() {
       const json = await fetchWithCache(url, true)
       setWeeklyReportData(json); setLastUpdated(new Date())
     } catch (e) {
-      if (date.setHours(0, 0, 0, 0) >= new Date().setHours(0, 0, 0, 0)) {
-        const p = new Date(date); p.setDate(p.getDate() - 1)
-        const pm = p.toLocaleString("en-US", { month: "short" }).toLowerCase()
-        const pd = String(p.getDate())
-        const purl = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/refs/heads/main/weekly${pm}${pd}.json`
+      let found = false;
+      for (let i = 1; i <= 5; i++) {
+        const p = new Date(date);
+        p.setDate(p.getDate() - i);
+        const pm = p.toLocaleString("en-US", { month: "short" }).toLowerCase();
+        const pd = String(p.getDate());
+        const purl = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/refs/heads/main/weekly${pm}${pd}.json`;
         try {
-          const json = await fetchWithCache(purl, true)
-          setWeeklyReportData(json); setLastUpdated(new Date()); setError(`Showing data from ${p.toDateString()} (today's data not available yet)`)
-          return
+          const json = await fetchWithCache(purl, true);
+          setWeeklyReportData(json);
+          setLastUpdated(new Date());
+          const prevFormat = p.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+          const currFormat = date.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+          setError(`Displaying ${prevFormat} data. ${currFormat} data is not available yet.`);
+          found = true;
+          break;
         } catch (err) { }
       }
-      setError(t("noDataForDate")); setWeeklyReportData(null)
+      if (!found) {
+        setError(t("noDataForDate"));
+        setWeeklyReportData(null);
+      }
     } finally { setLoading(false) }
   }
 
@@ -329,18 +355,23 @@ export default function Dashboard() {
       const json = await fetchWithCache(url, true)
       setWeeklySuggestions(json)
     } catch (e) {
-      if (date.setHours(0, 0, 0, 0) >= new Date().setHours(0, 0, 0, 0)) {
-        const p = new Date(date); p.setDate(p.getDate() - 1)
-        const pm = p.toLocaleString("en-US", { month: "short" }).toLowerCase()
-        const pd = String(p.getDate())
-        const purl = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/refs/heads/main/weekly_suggestions/segg${pm}${pd}.json`
+      let found = false;
+      for (let i = 1; i <= 5; i++) {
+        const p = new Date(date);
+        p.setDate(p.getDate() - i);
+        const pm = p.toLocaleString("en-US", { month: "short" }).toLowerCase();
+        const pd = String(p.getDate());
+        const purl = `https://raw.githubusercontent.com/Eliasdegemu61/discord-bot-data/refs/heads/main/weekly_suggestions/segg${pm}${pd}.json`;
         try {
-          const json = await fetchWithCache(purl, true)
-          setWeeklySuggestions(json)
-          return
+          const json = await fetchWithCache(purl, true);
+          setWeeklySuggestions(json);
+          found = true;
+          break;
         } catch (err) { }
       }
-      setWeeklySuggestions(null)
+      if (!found) {
+        setWeeklySuggestions(null);
+      }
     }
   }
 
