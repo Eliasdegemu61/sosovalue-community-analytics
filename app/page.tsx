@@ -712,9 +712,9 @@ export default function Dashboard() {
                       </div>
 
                       {posts && posts.length > 0 && (
-                        <div className="bg-card border border-border rounded-2xl p-8 sketchbook-paper h-full">
-                          <h2 className="text-xl font-bold mb-6">{t("mostEngagedPosts")}</h2>
-                          <div className="space-y-6">
+                        <div className="bg-card border border-border rounded-2xl p-5 sm:p-8 sketchbook-paper h-full flex flex-col">
+                          <h2 className="text-lg sm:text-xl font-bold mb-5 sm:mb-6">{t("mostEngagedPosts")}</h2>
+                          <div className="space-y-4 sm:space-y-6 flex-1">
                             {posts.map((postObj: any, i: number) => {
                               const isObj = typeof postObj === 'object' && postObj !== null;
                               
@@ -763,12 +763,12 @@ export default function Dashboard() {
                                   href={url || "#"} 
                                   target={url ? "_blank" : "_self"} 
                                   rel={url ? "noopener noreferrer" : ""}
-                                  className="flex gap-4 p-5 rounded-2xl hover:bg-secondary/30 transition-all duration-300 border border-transparent hover:border-accent/10 hover:shadow-lg group/post no-underline sketchbook-paper-subtle"
+                                  className="flex gap-3 sm:gap-4 p-3 sm:p-5 rounded-2xl hover:bg-secondary/30 transition-all duration-300 border border-transparent hover:border-accent/10 hover:shadow-lg group/post no-underline sketchbook-paper-subtle"
                                 >
                                   {/* User Avatar Placeholder */}
-                                  <div className="flex-shrink-0 pt-1">
+                                  <div className="flex-shrink-0 pt-0 sm:pt-1">
                                     <div className="relative group/avatar">
-                                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent/20 to-accent/5 border border-border/50 flex items-center justify-center overflow-hidden transition-transform group-hover/post:scale-105">
+                                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-accent/20 to-accent/5 border border-border/50 flex items-center justify-center overflow-hidden transition-transform group-hover/post:scale-105">
                                         <img 
                                           src={`https://api.dicebear.com/7.x/identicon/svg?seed=${username}`} 
                                           alt="User" 
@@ -785,60 +785,60 @@ export default function Dashboard() {
                                   <div className="flex-1 min-w-0 pb-1">
                                     <div className="flex items-center justify-between mb-1.5">
                                       <div className="flex items-center gap-1.5 flex-wrap">
-                                        <span className="font-bold text-foreground text-[15px] hover:underline hover:text-accent font-sans transition-colors cursor-pointer tracking-tight">
+                                        <span className="font-bold text-foreground text-[14px] sm:text-[15px] hover:underline hover:text-accent font-sans transition-colors cursor-pointer tracking-tight">
                                           {displayUsername}
                                         </span>
                                         {username.startsWith('@') && (
                                           <div className="bg-accent/10 p-0.5 rounded-full">
-                                            <ShieldCheck className="w-3.5 h-3.5 text-accent" fill="currentColor" />
+                                            <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-accent" fill="currentColor" />
                                           </div>
                                         )}
-                                        <span className="text-muted-foreground text-[14px] font-sans opacity-70">
+                                        <span className="text-muted-foreground text-[13px] sm:text-[14px] font-sans opacity-70 truncate max-w-[100px] sm:max-w-none">
                                           {username.startsWith('@') ? username : `@${username}`}
                                         </span>
                                       </div>
-                                      <div className="p-2 rounded-full hover:bg-accent/10 transition-colors cursor-pointer group/more">
-                                        <MoreHorizontal className="w-5 h-5 text-muted-foreground group-hover/more:text-accent transition-colors" />
+                                      <div className="p-1 sm:p-2 rounded-full hover:bg-accent/10 transition-colors cursor-pointer group/more">
+                                        <MoreHorizontal className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground group-hover/more:text-accent transition-colors" />
                                       </div>
                                     </div>
                                     
-                                    <p className="text-[15px] leading-[1.5] text-foreground/90 mb-4 whitespace-pre-wrap break-words font-sans selection:bg-accent/20">
+                                    <p className="text-[14px] sm:text-[15px] leading-[1.5] text-foreground/90 mb-3 sm:mb-4 whitespace-pre-wrap break-words font-sans selection:bg-accent/20">
                                       {description}
                                     </p>
 
                                     {/* Interaction Row */}
-                                    <div className="flex items-center justify-between max-w-[440px] text-muted-foreground -ml-2">
-                                      <div className="flex items-center gap-1 group/icon hover:text-blue-500 transition-all cursor-pointer">
-                                        <div className="p-2 rounded-full group-hover/icon:bg-blue-500/10 transition-colors">
-                                          <MessageCircle className="w-[18px] h-[18px] transition-transform group-hover/icon:scale-110" />
+                                    <div className="flex items-center justify-between max-w-[440px] text-muted-foreground -ml-1.5 sm:-ml-2 mt-1 sm:mt-0">
+                                      <div className="flex items-center gap-0.5 sm:gap-1 group/icon hover:text-blue-500 transition-all cursor-pointer">
+                                        <div className="p-1.5 sm:p-2 rounded-full group-hover/icon:bg-blue-500/10 transition-colors">
+                                          <MessageCircle className="w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] transition-transform group-hover/icon:scale-110" />
                                         </div>
-                                        <span className="text-[13px] font-sans font-medium">{replies}</span>
+                                        <span className="text-[12px] sm:text-[13px] font-sans font-medium">{replies}</span>
                                       </div>
 
-                                      <div className="flex items-center gap-1 group/icon hover:text-emerald-500 transition-all cursor-pointer">
-                                        <div className="p-2 rounded-full group-hover/icon:bg-emerald-500/10 transition-colors">
-                                          <Repeat2 className="w-[18px] h-[18px] transition-transform group-hover/icon:scale-110" />
+                                      <div className="flex items-center gap-0.5 sm:gap-1 group/icon hover:text-emerald-500 transition-all cursor-pointer">
+                                        <div className="p-1.5 sm:p-2 rounded-full group-hover/icon:bg-emerald-500/10 transition-colors">
+                                          <Repeat2 className="w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] transition-transform group-hover/icon:scale-110" />
                                         </div>
-                                        <span className="text-[13px] font-sans font-medium">{reposts}</span>
+                                        <span className="text-[12px] sm:text-[13px] font-sans font-medium">{reposts}</span>
                                       </div>
 
-                                      <div className="flex items-center gap-1 group/icon hover:text-rose-500 transition-all cursor-pointer">
-                                        <div className="p-2 rounded-full group-hover/icon:bg-rose-500/10 transition-colors">
-                                          <Heart className={`w-[18px] h-[18px] transition-transform group-hover/icon:scale-110 ${parseInt(likes) > 0 ? "fill-rose-500 text-rose-500" : ""}`} />
+                                      <div className="flex items-center gap-0.5 sm:gap-1 group/icon hover:text-rose-500 transition-all cursor-pointer">
+                                        <div className="p-1.5 sm:p-2 rounded-full group-hover/icon:bg-rose-500/10 transition-colors">
+                                          <Heart className={`w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] transition-transform group-hover/icon:scale-110 ${parseInt(likes) > 0 ? "fill-rose-500 text-rose-500" : ""}`} />
                                         </div>
-                                        <span className="text-[13px] font-sans font-medium">{likes}</span>
+                                        <span className="text-[12px] sm:text-[13px] font-sans font-medium">{likes}</span>
                                       </div>
                                       
-                                      <div className="flex items-center gap-1 group/icon hover:text-accent transition-all cursor-pointer">
-                                        <div className="p-2 rounded-full group-hover/icon:bg-accent/10 transition-colors">
-                                          <BarChart2 className="w-[18px] h-[18px] transition-transform group-hover/icon:scale-110" />
+                                      <div className="flex items-center gap-0.5 sm:gap-1 group/icon hover:text-accent transition-all cursor-pointer">
+                                        <div className="p-1.5 sm:p-2 rounded-full group-hover/icon:bg-accent/10 transition-colors">
+                                          <BarChart2 className="w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] transition-transform group-hover/icon:scale-110" />
                                         </div>
-                                        <span className="text-[13px] font-sans font-medium">{views}</span>
+                                        <span className="text-[12px] sm:text-[13px] font-sans font-medium">{views}</span>
                                       </div>
 
                                       <div className="flex items-center group/icon hover:text-blue-400 transition-all cursor-pointer">
-                                        <div className="p-2 rounded-full group-hover/icon:bg-blue-400/10 transition-colors">
-                                          <Share2 className="w-[18px] h-[18px]" />
+                                        <div className="p-1.5 sm:p-2 rounded-full group-hover/icon:bg-blue-400/10 transition-colors">
+                                          <Share2 className="w-[16px] h-[16px] sm:w-[18px] sm:h-[18px]" />
                                         </div>
                                       </div>
                                     </div>
