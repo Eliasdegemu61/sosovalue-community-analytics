@@ -969,12 +969,12 @@ export default function Dashboard() {
                         ))}
                       </div>
                     </div>
-                    <p className="text-sm sm:text-base leading-relaxed opacity-90">{weeklyReportData.reports?.[discordSection]?.summary || t("noSummary")}</p>
+                    <p className="text-sm sm:text-base leading-relaxed opacity-90">{(Array.isArray(weeklyReportData) ? weeklyReportData[0] : weeklyReportData)?.reports?.[discordSection]?.summary || t("noSummary")}</p>
                   </div>
                 )}
 
                 {/* Top Questions Card */}
-                {weeklyReportData?.reports?.[discordSection]?.questions?.length > 0 && (
+                {(Array.isArray(weeklyReportData) ? weeklyReportData[0] : weeklyReportData)?.reports?.[discordSection]?.questions?.length > 0 && (
                   <div className="bg-card border border-border rounded-2xl p-6 sm:p-10 sketchbook-paper hover:shadow-xl transition-all duration-300">
                     <div className="flex flex-col gap-1 mb-6">
                       <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
@@ -989,7 +989,7 @@ export default function Dashboard() {
                       </p>
                     </div>
                     <ol className="space-y-4">
-                      {weeklyReportData.reports[discordSection].questions.map((question: string, i: number) => (
+                      {(Array.isArray(weeklyReportData) ? weeklyReportData[0] : weeklyReportData)?.reports[discordSection].questions.map((question: string, i: number) => (
                         <li key={i} className="text-sm flex gap-4 text-foreground/90 font-serif leading-relaxed">
                           <span className="font-bold text-accent min-w-[1.5rem]">{i + 1}.</span> {question}
                         </li>
