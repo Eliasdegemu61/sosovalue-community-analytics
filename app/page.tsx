@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useTheme } from "next-themes"
-import { ChevronDown, RotateCw, ChevronLeft, ChevronRight, Moon, Sun, FileText, Heart, ExternalLink, MessageCircle, Repeat2, Share2, BarChart2, MoreHorizontal, ShieldCheck } from "lucide-react"
+import { ChevronDown, RotateCw, ChevronLeft, ChevronRight, Moon, Sun, FileText, Heart, ExternalLink, MessageCircle, Repeat2, Share2, BarChart2, MoreHorizontal, ShieldCheck, Quote } from "lucide-react"
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts"
 import { translations } from "@/lib/translations"
 
@@ -704,7 +704,12 @@ export default function Dashboard() {
               <div className="space-y-10">
                 <div className="bg-card border border-border rounded-2xl p-8 sketchbook-paper">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                    <h2 className="text-xl font-bold">{t("summary")} - {xSection}</h2>
+                    <div>
+                      <h2 className="text-xl font-bold">{t("summary")} - {xSection}</h2>
+                      {xData.timestamp && (
+                        <p className="text-[10px] text-muted-foreground font-sans mt-0.5 opacity-60">Last updated: {xData.timestamp}</p>
+                      )}
+                    </div>
                     <div className="flex bg-secondary/50 p-1 rounded-xl border border-border/50">
                       {["SoSoValue", "Sodex", "SSI Index"].map((s: any) => (
                         <button key={s} onClick={() => setXSection(s)} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${xSection === s ? "bg-card text-accent shadow-sm" : "text-muted-foreground"}`}>{s}</button>
@@ -717,8 +722,9 @@ export default function Dashboard() {
                   const sectionKey = xSection === "SSI Index" ? "ssi" : xSection.toLowerCase()
                   const questions = xData.top_questions?.[sectionKey]
                   const postsKey = Object.keys(xData).find(k => 
-                    (k.toLowerCase().includes("top") && k.toLowerCase().includes("post") && k.toLowerCase().includes("engagement")) ||
-                    (k.toLowerCase().includes("top") && k.toLowerCase().includes("poster") && k.toLowerCase().includes("engagement"))
+                    k === "top_engaged_posts" ||
+                    (k.toLowerCase().includes("top") && k.toLowerCase().includes("post") && (k.toLowerCase().includes("engagement") || k.toLowerCase().includes("engaged"))) ||
+                    (k.toLowerCase().includes("top") && k.toLowerCase().includes("poster") && (k.toLowerCase().includes("engagement") || k.toLowerCase().includes("engaged")))
                   )
                   const posts = postsKey ? xData[postsKey] : []
 
@@ -753,6 +759,7 @@ export default function Dashboard() {
                               let likes = "0";
                               let replies = "0";
                               let reposts = "0";
+                              let quotes = "0";
                               let views = "0";
                               let description = "";
                               let username = `${xSection.toLowerCase().replace(/\s/g, '')}`;
@@ -766,11 +773,13 @@ export default function Dashboard() {
                                 const lMatch = engagementStr.match(/(\d+)\s+likes?/i) || engagementStr.match(/Likes=(\d+)/i);
                                 const rpMatch = engagementStr.match(/(\d+)\s+reposts?/i) || engagementStr.match(/Reposts=(\d+)/i);
                                 const rMatch = engagementStr.match(/(\d+)\s+repl/i) || engagementStr.match(/Replies=(\d+)/i);
+                                const qMatch = engagementStr.match(/(\d+)\s+quotes?/i) || engagementStr.match(/Quotes=(\d+)/i);
                                 const vMatch = engagementStr.match(/(\d+)\s+views?/i) || engagementStr.match(/Views=(\d+)/i);
                                 
                                 if (lMatch) likes = lMatch[1];
                                 if (rpMatch) reposts = rpMatch[1];
                                 if (rMatch) replies = rMatch[1];
+                                if (qMatch) quotes = qMatch[1];
                                 if (vMatch) views = vMatch[1];
                               } else {
                                 const postStr = postObj as string;
@@ -851,6 +860,13 @@ export default function Dashboard() {
                                           <Repeat2 className="w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] transition-transform group-hover/icon:scale-110" />
                                         </div>
                                         <span className="text-[12px] sm:text-[13px] font-sans font-medium">{reposts}</span>
+                                      </div>
+
+                                      <div className="flex items-center gap-0.5 sm:gap-1 group/icon hover:text-blue-400 transition-all cursor-pointer">
+                                        <div className="p-1.5 sm:p-2 rounded-full group-hover/icon:bg-blue-400/10 transition-colors">
+                                          <Quote className="w-[14px] h-[14px] sm:w-[16px] sm:h-[16px] transition-transform group-hover/icon:scale-110" />
+                                        </div>
+                                        <span className="text-[12px] sm:text-[13px] font-sans font-medium">{quotes}</span>
                                       </div>
 
                                       <div className="flex items-center gap-0.5 sm:gap-1 group/icon hover:text-rose-500 transition-all cursor-pointer">
