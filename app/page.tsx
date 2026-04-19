@@ -758,15 +758,15 @@ export default function Dashboard() {
                               let username = `${xSection.toLowerCase().replace(/\s/g, '')}`;
                               
                               if (isObj) {
-                                url = postObj.post_link || "";
+                                url = postObj.url || postObj.post_link || "";
                                 description = postObj.content || "";
                                 username = postObj.username || username;
                                 
                                 const engagementStr = postObj.engagement || "";
-                                const lMatch = engagementStr.match(/Likes=(\d+)/i);
-                                const rpMatch = engagementStr.match(/Reposts=(\d+)/i);
-                                const rMatch = engagementStr.match(/Replies=(\d+)/i);
-                                const vMatch = engagementStr.match(/Views=(\d+)/i);
+                                const lMatch = engagementStr.match(/(\d+)\s+likes?/i) || engagementStr.match(/Likes=(\d+)/i);
+                                const rpMatch = engagementStr.match(/(\d+)\s+reposts?/i) || engagementStr.match(/Reposts=(\d+)/i);
+                                const rMatch = engagementStr.match(/(\d+)\s+repl/i) || engagementStr.match(/Replies=(\d+)/i);
+                                const vMatch = engagementStr.match(/(\d+)\s+views?/i) || engagementStr.match(/Views=(\d+)/i);
                                 
                                 if (lMatch) likes = lMatch[1];
                                 if (rpMatch) reposts = rpMatch[1];
